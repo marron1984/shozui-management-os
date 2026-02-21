@@ -40,10 +40,13 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  const today = "2026-02-22";
-  const todayReports = DEMO_DAILY_REPORTS.filter((r) => r.date === today);
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  // デモデータは2026-02-22固定なので、デモ用にフォールバック
+  const demoToday = "2026-02-22";
+  const todayReports = DEMO_DAILY_REPORTS.filter((r) => r.date === today || r.date === demoToday);
   const pendingApprovals = DEMO_APPROVAL_REQUESTS.filter((a) => a.status === "pending");
-  const todayReservations = DEMO_RESERVATIONS.filter((r) => r.date === today);
+  const todayReservations = DEMO_RESERVATIONS.filter((r) => r.date === today || r.date === demoToday);
 
   const totalRevenue = DEMO_MONTHLY_REPORTS.filter((r) => r.year === 2026 && r.month === 1).reduce(
     (sum, r) => sum + r.revenue,
@@ -98,7 +101,12 @@ export default function Dashboard() {
             おはようございます、{user.name}さん
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            2026年2月22日（日曜日）
+            {now.toLocaleDateString("ja-JP", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              weekday: "long",
+            })}
           </p>
         </div>
 

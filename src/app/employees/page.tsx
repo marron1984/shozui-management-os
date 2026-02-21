@@ -7,6 +7,7 @@ import { getCurrentUser, DEMO_USERS, DEMO_STORES, canViewSalary } from "@/lib/au
 import { DEMO_SUGGESTIONS } from "@/lib/demo-data";
 import { User, ROLE_LABELS, Suggestion } from "@/types";
 import { Users, UserCircle, Store, MessageSquare, Send, Eye, EyeOff, MapPin } from "lucide-react";
+import { canRespondToSuggestions } from "@/lib/auth";
 
 export default function EmployeesPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function EmployeesPage() {
   const [activeTab, setActiveTab] = useState<"roster" | "suggestions">("roster");
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
   const [suggestions, setSuggestions] = useState(DEMO_SUGGESTIONS);
+  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -190,14 +192,40 @@ export default function EmployeesPage() {
                     <p className="text-sm text-green-700">{s.response}</p>
                   </div>
                 )}
-                {s.status === "new" && (
+                {s.status === "new" && user && canRespondToSuggestions(user.role) && (
                   <div className="flex gap-2">
                     <input
                       type="text"
+                      value={replyTexts[s.id] || ""}
+                      onChange={(e) =>
+                        setReplyTexts({ ...replyTexts, [s.id]: e.target.value })
+                      }
                       placeholder="回答を入力..."
                       className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
-                    <button className="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600 transition-colors flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        const text = replyTexts[s.id]?.trim();
+                        if (!text) return;
+                        setSuggestions(
+                          suggestions.map((sg) =>
+                            sg.id === s.id
+                              ? {
+                                  ...sg,
+                                  status: "responded" as const,
+                                  response: text,
+                                  respondedBy: user.id,
+                                  respondedByName: user.name,
+                                  respondedAt: new Date().toISOString(),
+                                }
+                              : sg
+                          )
+                        );
+                        setReplyTexts({ ...replyTexts, [s.id]: "" });
+                      }}
+                      disabled={!replyTexts[s.id]?.trim()}
+                      className="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600 disabled:opacity-40 transition-colors flex items-center gap-1"
+                    >
                       <Send size={14} />
                       回答
                     </button>

@@ -17,7 +17,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
 import { getCurrentUser, logout } from "@/lib/auth";
 import { ROLE_LABELS } from "@/types";
 
@@ -34,9 +33,13 @@ const menuItems = [
   { href: "/chat", label: "チャット", icon: MessageCircle },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+}
+
+export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
   const user = getCurrentUser();
 
   if (!user || pathname === "/login") return null;
@@ -105,7 +108,7 @@ export default function Sidebar() {
             {!collapsed && <span>ログアウト</span>}
           </button>
           <button
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={onToggleCollapse}
             className="p-1.5 text-white/50 hover:text-white transition-colors rounded"
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}

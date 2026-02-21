@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_NOTIFICATIONS } from "@/lib/demo-data";
 import { ROLE_LABELS } from "@/types";
@@ -9,8 +9,22 @@ import { ROLE_LABELS } from "@/types";
 export default function Header({ title }: { title: string }) {
   const user = getCurrentUser();
   const [showNotifications, setShowNotifications] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const notifications = DEMO_NOTIFICATIONS.filter((n) => n.userId === user?.id);
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // 外側クリックで閉じる
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    }
+    if (showNotifications) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showNotifications]);
 
   if (!user) return null;
 
@@ -19,7 +33,7 @@ export default function Header({ title }: { title: string }) {
       <h1 className="text-lg font-bold text-gray-800">{title}</h1>
       <div className="flex items-center gap-4">
         {/* 通知 */}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowNotifications(!showNotifications)}
             className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors"
