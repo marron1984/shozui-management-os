@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, DEMO_USERS, DEMO_STORES, canViewSalary } from "@/lib/auth";
 import { DEMO_SUGGESTIONS } from "@/lib/demo-data";
 import { User, ROLE_LABELS } from "@/types";
@@ -11,6 +12,7 @@ import { canRespondToSuggestions } from "@/lib/auth";
 
 export default function EmployeesPage() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<"roster" | "suggestions">("roster");
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
@@ -34,8 +36,8 @@ export default function EmployeesPage() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="社員管理" />
-      <div className="p-8">
+      <Header title="社員管理" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
         {/* タブ */}
         <div className="flex gap-2 mb-6">
           <button
@@ -64,7 +66,7 @@ export default function EmployeesPage() {
         </div>
 
         {activeTab === "roster" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
             {/* 社員一覧 */}
             <div className="lg:col-span-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -97,7 +99,7 @@ export default function EmployeesPage() {
             </div>
 
             {/* 社員票 */}
-            <div className="bg-white border border-[#e0dbd2] rounded-sm p-5 h-fit sticky top-20">
+            <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 lg:p-5 h-fit lg:sticky lg:top-20">
               {selectedEmployee ? (
                 <div>
                   <div className="text-center mb-5">

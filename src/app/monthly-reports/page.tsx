@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser } from "@/lib/auth";
 import { canViewMonthlyReports } from "@/lib/auth";
 import { DEMO_MONTHLY_REPORTS } from "@/lib/demo-data";
@@ -11,6 +12,7 @@ import { Store, FileDown, Lock } from "lucide-react";
 
 export default function MonthlyReportsPage() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [selectedYear, setSelectedYear] = useState(2026);
   const [selectedMonth, setSelectedMonth] = useState(1);
@@ -26,8 +28,8 @@ export default function MonthlyReportsPage() {
   if (!canViewMonthlyReports(user.role)) {
     return (
       <div className="bg-[#fafaf7] min-h-screen">
-        <Header title="月次報告" />
-        <div className="p-8">
+        <Header title="月次報告" onMobileMenuOpen={openMobileMenu} />
+        <div className="p-4 lg:p-8">
           <div className="bg-white border border-[#e0dbd2] rounded-sm p-12 text-center">
             <Lock size={36} className="mx-auto text-[#e0dbd2] mb-3" strokeWidth={1} />
             <p className="text-xs text-[#8a8a8a] tracking-wider">この機能は執行役員以上のみ閲覧可能です</p>
@@ -48,8 +50,8 @@ export default function MonthlyReportsPage() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="月次報告" />
-      <div className="p-8">
+      <Header title="月次報告" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
         {/* 月選択 */}
         <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 mb-6">
           <div className="flex items-center gap-4">
@@ -84,7 +86,7 @@ export default function MonthlyReportsPage() {
           <h3 className="text-[11px] text-white/40 mb-5 tracking-[0.2em]">
             {selectedYear}年{selectedMonth}月 全店舗合計
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-6">
             <div>
               <div className="text-2xl font-light text-[#c4a265] tracking-wider">¥{(totalRevenue / 10000).toFixed(0)}万</div>
               <div className="text-[10px] text-white/30 mt-1 tracking-[0.15em]">売上</div>
@@ -107,7 +109,7 @@ export default function MonthlyReportsPage() {
         </div>
 
         {/* 各店舗レポート */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
           {reports.map((report) => (
             <div key={report.id} className="bg-white border border-[#e0dbd2] rounded-sm p-5">
               <div className="flex items-center justify-between mb-4">

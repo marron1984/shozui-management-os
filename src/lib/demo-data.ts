@@ -377,12 +377,12 @@ export const DEMO_CHANNELS: ChatChannel[] = [
 ];
 
 export const DEMO_MESSAGES: ChatMessage[] = [
-  { id: "m1", senderId: "u1", senderName: "榎本 太郎", senderRole: "president", channelId: "ch1", content: "来月の全体会議の日程を調整しましょう。3/10はいかがですか？", readBy: ["u1", "u2"], createdAt: "2026-02-22T14:00:00" },
+  { id: "m1", senderId: "u1", senderName: "榎本 泰之", senderRole: "president", channelId: "ch1", content: "来月の全体会議の日程を調整しましょう。3/10はいかがですか？", readBy: ["u1", "u2"], createdAt: "2026-02-22T14:00:00" },
   { id: "m2", senderId: "u2", senderName: "田中 次郎", senderRole: "executive", channelId: "ch1", content: "3/10で問題ありません。", readBy: ["u1", "u2"], createdAt: "2026-02-22T14:05:00" },
   { id: "m3", senderId: "u4", senderName: "山田 花子", senderRole: "store_manager", channelId: "ch2", content: "明日の仕込みについて確認です。特別コースの予約が入っています。", readBy: ["u4", "u5"], createdAt: "2026-02-22T18:00:00" },
   { id: "m4", senderId: "u5", senderName: "佐藤 美咲", senderRole: "okami", channelId: "ch2", content: "了解です。個室Aの準備も進めておきます。", readBy: ["u4", "u5"], createdAt: "2026-02-22T18:05:00" },
   { id: "m5", senderId: "u6", senderName: "鈴木 一郎", senderRole: "store_manager", channelId: "ch3", content: "和牛の追加発注をお願いします。在庫が残りわずかです。", readBy: ["u6"], createdAt: "2026-02-22T17:30:00" },
-  { id: "m6", senderId: "u1", senderName: "榎本 太郎", senderRole: "president", channelId: "ch5", content: "3月のシフト希望を提出してください。締切は2/25です。", readBy: ["u1"], createdAt: "2026-02-22T10:00:00" },
+  { id: "m6", senderId: "u1", senderName: "榎本 泰之", senderRole: "president", channelId: "ch5", content: "3月のシフト希望を提出してください。締切は2/25です。", readBy: ["u1"], createdAt: "2026-02-22T10:00:00" },
 ];
 
 // 通知デモデータ

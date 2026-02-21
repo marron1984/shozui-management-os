@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, DEMO_STORES } from "@/lib/auth";
 import { DEMO_DAILY_REPORTS } from "@/lib/demo-data";
 import { User } from "@/types";
@@ -10,6 +11,7 @@ import { FileText, Store, Camera, Filter, Calendar, ChevronDown, FolderOpen } fr
 
 export default function DailyReportsPage() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [selectedStore, setSelectedStore] = useState("all");
   const [selectedDate, setSelectedDate] = useState("2026-02-22");
@@ -31,8 +33,8 @@ export default function DailyReportsPage() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="日報管理" />
-      <div className="p-8">
+      <Header title="日報管理" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
         {/* フィルター */}
         <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 mb-6">
           <div className="flex flex-wrap items-center gap-4">
@@ -66,7 +68,7 @@ export default function DailyReportsPage() {
         </div>
 
         {/* フォルダツリー */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
           <div className="bg-white border border-[#e0dbd2] rounded-sm p-4">
             <h3 className="text-[11px] text-[#2d2d2d] mb-3 flex items-center gap-2 tracking-[0.15em]">
               <FolderOpen size={14} className="text-[#c4a265]" strokeWidth={1.5} />

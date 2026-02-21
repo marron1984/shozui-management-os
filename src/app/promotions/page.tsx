@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_PROMOTIONS } from "@/lib/demo-data";
 import { User, PromotionMaterial } from "@/types";
@@ -26,6 +27,7 @@ const typeColors: Record<string, string> = {
 
 export default function PromotionsPage() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [filterType, setFilterType] = useState("all");
   const [selectedItem, setSelectedItem] = useState<PromotionMaterial | null>(null);
@@ -44,8 +46,8 @@ export default function PromotionsPage() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="販促素材管理" />
-      <div className="p-8">
+      <Header title="販促素材管理" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
         {/* フィルター */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex gap-2 flex-wrap">
@@ -76,7 +78,7 @@ export default function PromotionsPage() {
         </div>
 
         {/* フォルダ構造＋コンテンツ */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
           {/* フォルダツリー */}
           <div className="bg-white border border-[#e0dbd2] rounded-sm p-4">
             <h3 className="text-[11px] text-[#2d2d2d] mb-3 flex items-center gap-2 tracking-[0.15em]">
@@ -151,9 +153,9 @@ export default function PromotionsPage() {
 
         {/* 詳細モーダル */}
         {selectedItem && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setSelectedItem(null)}>
-            <div className="bg-[#fafaf7] rounded-sm max-w-lg w-full max-h-[80vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6">
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 lg:p-4" onClick={() => setSelectedItem(null)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-lg w-full max-h-[85vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 lg:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className={`text-[10px] px-2 py-0.5 rounded-sm tracking-wider ${typeColors[selectedItem.type]}`}>
                     {typeLabels[selectedItem.type]}

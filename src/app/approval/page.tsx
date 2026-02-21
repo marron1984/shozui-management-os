@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, canApproveRequest } from "@/lib/auth";
 import { DEMO_APPROVAL_REQUESTS } from "@/lib/demo-data";
 import { User, ApprovalRequest } from "@/types";
@@ -22,6 +23,7 @@ function generateApprovalNumber(requests: ApprovalRequest[]): string {
 
 export default function ApprovalPage() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [requests, setRequests] = useState(DEMO_APPROVAL_REQUESTS);
@@ -83,16 +85,16 @@ export default function ApprovalPage() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="稟議書" />
-      <div className="p-8">
+      <Header title="稟議書" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
         {/* ヘッダー */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+          <div className="flex flex-wrap gap-2">
             {(["all", "pending", "approved", "rejected"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2 text-[11px] rounded-sm transition-all duration-300 tracking-wider ${
+                className={`px-3 lg:px-4 py-2 text-[11px] rounded-sm transition-all duration-300 tracking-wider ${
                   filter === f ? "bg-[#c4a265] text-white" : "bg-white text-[#8a8a8a] border border-[#e0dbd2] hover:border-[#c4a265]/30"
                 }`}
               >
@@ -109,7 +111,7 @@ export default function ApprovalPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* 一覧 */}
           <div className="lg:col-span-2 space-y-3">
             {filtered.map((req) => (
@@ -143,7 +145,7 @@ export default function ApprovalPage() {
           </div>
 
           {/* 詳細パネル */}
-          <div className="bg-white border border-[#e0dbd2] rounded-sm p-5 h-fit sticky top-20">
+          <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 lg:p-5 h-fit lg:sticky lg:top-20">
             {selectedRequest ? (
               <div>
                 {/* 稟議番号 */}

@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_CHANNELS, DEMO_MESSAGES } from "@/lib/demo-data";
 import { User, ChatChannel, ChatMessage, ROLE_LABELS } from "@/types";
-import { MessageCircle, Send, Hash, Users, User as UserIcon, Paperclip } from "lucide-react";
+import { MessageCircle, Send, Hash, Users, User as UserIcon, Paperclip, ChevronLeft } from "lucide-react";
 
 export default function ChatPage() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<ChatChannel | null>(null);
   const [newMessage, setNewMessage] = useState("");
@@ -61,12 +63,12 @@ export default function ChatPage() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="連絡" />
-      <div className="p-8">
-        <div className="bg-white border border-[#e0dbd2] rounded-sm overflow-hidden" style={{ height: "calc(100vh - 140px)" }}>
-          <div className="flex h-full">
+      <Header title="連絡" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
+        <div className="bg-white border border-[#e0dbd2] rounded-sm overflow-hidden" style={{ height: "calc(100vh - 120px)" }}>
+          <div className="flex h-full relative">
             {/* チャンネルリスト */}
-            <div className="w-64 border-r border-[#e0dbd2] flex flex-col bg-[#fafaf7]">
+            <div className={`${selectedChannel ? "hidden lg:flex" : "flex"} w-full lg:w-64 border-r border-[#e0dbd2] flex-col bg-[#fafaf7]`}>
               <div className="p-3 border-b border-[#e0dbd2]">
                 <h3 className="text-[11px] text-[#2d2d2d] tracking-[0.15em]">チャンネル</h3>
               </div>
@@ -106,11 +108,17 @@ export default function ChatPage() {
             </div>
 
             {/* メッセージエリア */}
-            <div className="flex-1 flex flex-col">
+            <div className={`${selectedChannel ? "flex" : "hidden lg:flex"} flex-1 flex-col`}>
               {selectedChannel ? (
                 <>
                   {/* チャンネルヘッダー */}
                   <div className="p-3 border-b border-[#e0dbd2] flex items-center gap-2 bg-[#fafaf7]">
+                    <button
+                      onClick={() => setSelectedChannel(null)}
+                      className="p-1 text-[#8a8a8a] hover:text-[#2d2d2d] lg:hidden"
+                    >
+                      <ChevronLeft size={16} strokeWidth={1.5} />
+                    </button>
                     {channelIcon(selectedChannel.type)}
                     <h3 className="text-xs text-[#2d2d2d] tracking-wider">{selectedChannel.name}</h3>
                     <span className="text-[10px] text-[#8a8a8a]/60 tracking-wider">
@@ -134,7 +142,7 @@ export default function ChatPage() {
                           }`}>
                             {msg.senderName.charAt(0)}
                           </div>
-                          <div className={`max-w-md ${isOwn ? "text-right" : ""}`}>
+                          <div className={`max-w-[70%] lg:max-w-md ${isOwn ? "text-right" : ""}`}>
                             <div className="flex items-center gap-2 mb-0.5">
                               {!isOwn && (
                                 <span className="text-[10px] text-[#2d2d2d] tracking-wider">{msg.senderName}</span>

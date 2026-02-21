@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_STORES } from "@/lib/auth";
 import {
@@ -27,6 +28,7 @@ import { User, Reservation } from "@/types";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [todayReservations, setTodayReservations] = useState<Reservation[]>([]);
   const [reservationsSyncing, setReservationsSyncing] = useState(false);
@@ -108,8 +110,8 @@ export default function Dashboard() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="ダッシュボード" />
-      <div className="p-8">
+      <Header title="ダッシュボード" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
         {/* 挨拶 */}
         <div className="mb-8">
           <h2 className="text-lg font-medium text-[#2d2d2d] tracking-wider">
@@ -126,7 +128,7 @@ export default function Dashboard() {
         </div>
 
         {/* 統計カード */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 mb-6 lg:mb-8">
           {statCards.map((card) => (
             <Link
               key={card.label}
@@ -147,7 +149,7 @@ export default function Dashboard() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {/* 本日の日報 */}
           <div className="bg-white border border-[#e0dbd2] rounded-sm">
             <div className="p-4 border-b border-[#e0dbd2] flex items-center justify-between">

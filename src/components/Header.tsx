@@ -1,12 +1,17 @@
 "use client";
 
-import { Bell } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_NOTIFICATIONS } from "@/lib/demo-data";
 import { ROLE_LABELS } from "@/types";
 
-export default function Header({ title }: { title: string }) {
+interface HeaderProps {
+  title: string;
+  onMobileMenuOpen?: () => void;
+}
+
+export default function Header({ title, onMobileMenuOpen }: HeaderProps) {
   const user = getCurrentUser();
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -28,9 +33,20 @@ export default function Header({ title }: { title: string }) {
   if (!user) return null;
 
   return (
-    <header className="h-14 bg-[#fafaf7] border-b border-[#e0dbd2] flex items-center justify-between px-8 sticky top-0 z-40">
-      <h1 className="text-base font-medium text-[#2d2d2d] tracking-[0.1em]">{title}</h1>
-      <div className="flex items-center gap-5">
+    <header className="h-14 bg-[#fafaf7] border-b border-[#e0dbd2] flex items-center justify-between px-4 lg:px-8 sticky top-0 z-40">
+      <div className="flex items-center gap-3">
+        {/* モバイル: ハンバーガーメニュー */}
+        {onMobileMenuOpen && (
+          <button
+            onClick={onMobileMenuOpen}
+            className="p-1.5 text-[#8a8a8a] hover:text-[#4a4a4a] transition-colors duration-300 lg:hidden"
+          >
+            <Menu size={20} strokeWidth={1.5} />
+          </button>
+        )}
+        <h1 className="text-sm lg:text-base font-medium text-[#2d2d2d] tracking-[0.1em]">{title}</h1>
+      </div>
+      <div className="flex items-center gap-3 lg:gap-5">
         {/* 通知 */}
         <div className="relative" ref={dropdownRef}>
           <button
@@ -45,7 +61,7 @@ export default function Header({ title }: { title: string }) {
             )}
           </button>
           {showNotifications && (
-            <div className="absolute right-0 top-11 w-80 bg-[#fafaf7] rounded-sm shadow-lg border border-[#e0dbd2] max-h-96 overflow-y-auto">
+            <div className="absolute right-0 top-11 w-[calc(100vw-2rem)] max-w-80 bg-[#fafaf7] rounded-sm shadow-lg border border-[#e0dbd2] max-h-96 overflow-y-auto">
               <div className="p-3 border-b border-[#e0dbd2] text-xs text-[#8a8a8a] tracking-wider">
                 通知 ({unreadCount}件の未読)
               </div>

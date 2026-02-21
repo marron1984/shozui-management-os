@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, canViewRecruitment } from "@/lib/auth";
 import { DEMO_APPLICATIONS } from "@/lib/demo-data";
 import { User, JobApplication } from "@/types";
@@ -10,6 +11,7 @@ import { UserPlus, FileText, CheckCircle, XCircle, Lock, User as UserIcon } from
 
 export default function RecruitmentPage() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [applications, setApplications] = useState(DEMO_APPLICATIONS);
   const [selected, setSelected] = useState<JobApplication | null>(null);
@@ -25,8 +27,8 @@ export default function RecruitmentPage() {
   if (!canViewRecruitment(user.role)) {
     return (
       <div className="bg-[#fafaf7] min-h-screen">
-        <Header title="採用管理" />
-        <div className="p-8">
+        <Header title="採用管理" onMobileMenuOpen={openMobileMenu} />
+        <div className="p-4 lg:p-8">
           <div className="bg-white border border-[#e0dbd2] rounded-sm p-12 text-center">
             <Lock size={36} className="mx-auto text-[#e0dbd2] mb-3" strokeWidth={1} />
             <p className="text-xs text-[#8a8a8a] tracking-wider">この機能は店長・女将以上のみ閲覧可能です</p>
@@ -59,10 +61,10 @@ export default function RecruitmentPage() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="採用管理" />
-      <div className="p-8">
+      <Header title="採用管理" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
         {/* 統計 */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
           {[
             { label: "応募総数", value: applications.length, color: "text-[#2d2d2d]" },
             { label: "未確認", value: applications.filter((a) => a.status === "pending").length, color: "text-[#c4a265]" },
@@ -76,7 +78,7 @@ export default function RecruitmentPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* 応募一覧 */}
           <div className="lg:col-span-2 space-y-3">
             {applications.map((app) => (
@@ -116,7 +118,7 @@ export default function RecruitmentPage() {
           </div>
 
           {/* 詳細パネル */}
-          <div className="bg-white border border-[#e0dbd2] rounded-sm p-5 h-fit sticky top-20">
+          <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 lg:p-5 h-fit lg:sticky lg:top-20">
             {selected ? (
               <div>
                 <div className="text-center mb-5">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useMobileMenu } from "@/components/ClientLayout";
 import SyncStatusBadge from "@/components/SyncStatusBadge";
 import { getCurrentUser, DEMO_STORES } from "@/lib/auth";
 import { useReservations } from "@/hooks/useReservations";
@@ -11,6 +12,7 @@ import { CalendarCheck, Users, Clock, Store, AlertTriangle, Filter, UtensilsCros
 
 export default function ReservationsPage() {
   const router = useRouter();
+  const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [selectedDate, setSelectedDate] = useState("2026-02-22");
   const [selectedStore, setSelectedStore] = useState("all");
@@ -89,12 +91,12 @@ export default function ReservationsPage() {
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
-      <Header title="予約状況" />
-      <div className="p-8">
+      <Header title="予約状況" onMobileMenuOpen={openMobileMenu} />
+      <div className="p-4 lg:p-8">
         {/* フィルター + 同期 */}
         <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2">
                 <Filter size={14} className="text-[#8a8a8a]" strokeWidth={1.5} />
               </div>
@@ -126,7 +128,7 @@ export default function ReservationsPage() {
         </div>
 
         {/* サマリー */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
           <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 text-center">
             <CalendarCheck size={18} className="mx-auto text-[#c4a265] mb-1" strokeWidth={1.5} />
             <div className="text-2xl font-light text-[#2d2d2d] tracking-wider">{filtered.length}</div>
@@ -153,7 +155,7 @@ export default function ReservationsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* 店舗別予約一覧 */}
           <div className="lg:col-span-2 space-y-6">
             {byStore.map(({ store, reservations: storeReservations }) => (
@@ -173,7 +175,8 @@ export default function ReservationsPage() {
                 {storeReservations.length === 0 ? (
                   <div className="p-6 text-center text-[#8a8a8a] text-xs tracking-wider">予約はありません</div>
                 ) : (
-                  <table className="w-full">
+                  <div className="overflow-x-auto">
+                  <table className="w-full min-w-[600px]">
                     <thead>
                       <tr className="text-[10px] text-[#8a8a8a] border-b border-[#eae6df] tracking-[0.15em]">
                         <th className="text-left p-3 font-normal">時間</th>
@@ -219,13 +222,14 @@ export default function ReservationsPage() {
                         ))}
                     </tbody>
                   </table>
+                  </div>
                 )}
               </div>
             ))}
           </div>
 
           {/* 詳細パネル */}
-          <div className="bg-white border border-[#e0dbd2] rounded-sm p-5 h-fit sticky top-20">
+          <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 lg:p-5 h-fit lg:sticky lg:top-20">
             {selectedReservation ? (
               <div>
                 <div className="flex items-center justify-between mb-4">

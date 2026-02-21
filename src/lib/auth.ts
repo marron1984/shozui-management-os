@@ -70,7 +70,7 @@ export function canRespondToSuggestions(role: Role): boolean {
 export const DEMO_USERS: User[] = [
   {
     id: "u1",
-    name: "榎本 太郎",
+    name: "榎本 泰之",
     email: "enomoto@shozui.co.jp",
     role: "president",
     storeId: "all",
