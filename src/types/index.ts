@@ -120,6 +120,7 @@ export interface CashFlow {
 }
 
 export interface CashFlowDetail {
+  id: string;
   category: string;
   amount: number;
   description: string;
