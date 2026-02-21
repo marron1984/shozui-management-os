@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
-import { getCurrentUser, canViewCashFlow } from "@/lib/auth";
+import { getCurrentUser, canViewCashFlow, DEMO_STORES } from "@/lib/auth";
 import { DEMO_CASHFLOW } from "@/lib/demo-data";
 import { User, CashFlow, CashFlowDetail } from "@/types";
 import {
@@ -14,12 +14,18 @@ import {
   ArrowDown,
   Lock,
   Plus,
-  X,
   Trash2,
   Wallet,
   ChevronDown,
   ChevronUp,
+  Store,
+  UtensilsCrossed,
+  Users,
+  AlertTriangle,
 } from "lucide-react";
+
+// ── 店舗名リスト ────────────────────────────────
+const STORE_NAMES = DEMO_STORES.map((s) => s.name);
 
 // ── ユーティリティ ──────────────────────────────────
 function generateId() {
@@ -65,6 +71,59 @@ function recalculate(details: CashFlowDetail[], openingBalance: number) {
   };
 }
 
+// ── 店舗別集計 ──────────────────────────────────
+interface StoreFinance {
+  storeName: string;
+  revenue: number;
+  foodCost: number;
+  laborCost: number;
+  flCost: number;
+  flRate: number;
+}
+
+function calcStoreFinances(details: CashFlowDetail[]): StoreFinance[] {
+  return STORE_NAMES.map((storeName) => {
+    // カテゴリに店舗名を含む明細を抽出
+    const revenue = details
+      .filter((d) => d.amount > 0 && d.category.includes(storeName))
+      .reduce((s, d) => s + d.amount, 0);
+    const foodCost = details
+      .filter(
+        (d) =>
+          d.amount < 0 &&
+          d.category.includes(storeName) &&
+          (d.category.includes("食材") || d.category.includes("仕入"))
+      )
+      .reduce((s, d) => s + Math.abs(d.amount), 0);
+    const laborCost = details
+      .filter(
+        (d) =>
+          d.amount < 0 &&
+          d.category.includes(storeName) &&
+          d.category.includes("人件費")
+      )
+      .reduce((s, d) => s + Math.abs(d.amount), 0);
+    const flCost = foodCost + laborCost;
+    const flRate = revenue > 0 ? (flCost / revenue) * 100 : 0;
+
+    return { storeName, revenue, foodCost, laborCost, flCost, flRate };
+  });
+}
+
+function getFlRateColor(rate: number): string {
+  if (rate === 0) return "text-[#8a8a8a]";
+  if (rate <= 55) return "text-green-700/80";
+  if (rate <= 65) return "text-[#c4a265]";
+  return "text-red-600/80";
+}
+
+function getFlRateBg(rate: number): string {
+  if (rate === 0) return "bg-[#8a8a8a]/10";
+  if (rate <= 55) return "bg-green-600/10";
+  if (rate <= 65) return "bg-[#c4a265]/10";
+  return "bg-red-500/10";
+}
+
 // ── メインコンポーネント ────────────────────────────
 export default function FinancePage() {
   const router = useRouter();
@@ -101,6 +160,19 @@ export default function FinancePage() {
     [cashflow.details, cashflow.openingBalance]
   );
 
+  // 店舗別集計
+  const storeFinances = useMemo(
+    () => calcStoreFinances(cashflow.details),
+    [cashflow.details]
+  );
+
+  // 全店合計FL率
+  const totalFL = useMemo(() => {
+    const totalRevenue = storeFinances.reduce((s, sf) => s + sf.revenue, 0);
+    const totalFLCost = storeFinances.reduce((s, sf) => s + sf.flCost, 0);
+    return totalRevenue > 0 ? (totalFLCost / totalRevenue) * 100 : 0;
+  }, [storeFinances]);
+
   // 項目追加
   const handleAdd = useCallback(() => {
     if (!formCategory.trim()) {
@@ -127,8 +199,8 @@ export default function FinancePage() {
     };
 
     setCashflow((prev) => {
-      const newDetails = [...prev.details, newDetail].sort(
-        (a, b) => a.date.localeCompare(b.date)
+      const newDetails = [...prev.details, newDetail].sort((a, b) =>
+        a.date.localeCompare(b.date)
       );
       const r = recalculate(newDetails, prev.openingBalance);
       return {
@@ -319,7 +391,7 @@ export default function FinancePage() {
 
             {/* NOW */}
             <div className="text-center flex-shrink-0">
-              <div className="w-22 h-22 lg:w-26 lg:h-26 w-[88px] h-[88px] lg:w-[104px] lg:h-[104px] rounded-full border-2 border-[#c4a265] flex items-center justify-center bg-[#c4a265]/[0.04] relative">
+              <div className="w-[88px] h-[88px] lg:w-[104px] lg:h-[104px] rounded-full border-2 border-[#c4a265] flex items-center justify-center bg-[#c4a265]/[0.04] relative">
                 <div>
                   <div className="text-[10px] text-[#c4a265] tracking-wider flex items-center justify-center gap-1">
                     <span className="relative flex h-1.5 w-1.5">
@@ -382,6 +454,148 @@ export default function FinancePage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ── 店舗別売上・FL率 ── */}
+        <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 lg:p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm text-[#2d2d2d] tracking-wider flex items-center gap-2">
+              <Store size={15} className="text-[#c4a265]" strokeWidth={1.5} />
+              店舗別 売上・FL率
+            </h3>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-[#8a8a8a] tracking-wider">
+                全店FL率
+              </span>
+              <span
+                className={`text-sm font-light tracking-wider ${getFlRateColor(totalFL)}`}
+              >
+                {totalFL > 0 ? totalFL.toFixed(1) : "—"}%
+              </span>
+            </div>
+          </div>
+
+          {/* FL率の目安 */}
+          <div className="flex flex-wrap items-center gap-3 mb-4 text-[9px] tracking-wider">
+            <span className="flex items-center gap-1 text-green-700/70">
+              <span className="w-2 h-2 rounded-full bg-green-600/30" />
+              〜55% 優秀
+            </span>
+            <span className="flex items-center gap-1 text-[#c4a265]">
+              <span className="w-2 h-2 rounded-full bg-[#c4a265]/30" />
+              55〜65% 標準
+            </span>
+            <span className="flex items-center gap-1 text-red-600/70">
+              <span className="w-2 h-2 rounded-full bg-red-500/30" />
+              65%〜 要改善
+            </span>
+          </div>
+
+          {/* 店舗カード */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            {storeFinances.map((sf) => (
+              <div
+                key={sf.storeName}
+                className="border border-[#eae6df] rounded-sm p-3 lg:p-4 hover:border-[#c4a265]/30 transition-colors duration-300"
+              >
+                {/* 店舗名 + FL率バッジ */}
+                <div className="flex items-start justify-between mb-3">
+                  <h4 className="text-xs text-[#2d2d2d] tracking-wider font-medium leading-tight">
+                    {sf.storeName}
+                  </h4>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-sm tracking-wider font-light ${getFlRateBg(sf.flRate)} ${getFlRateColor(sf.flRate)}`}
+                  >
+                    FL {sf.flRate > 0 ? sf.flRate.toFixed(1) : "—"}%
+                  </span>
+                </div>
+
+                {/* 売上 */}
+                <div className="mb-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">
+                      売上
+                    </span>
+                    <span className="text-sm font-light text-[#2d2d2d] tracking-wider">
+                      {sf.revenue > 0
+                        ? `¥${(sf.revenue / 10000).toFixed(0)}万`
+                        : "—"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* FL内訳バー */}
+                {sf.revenue > 0 && (
+                  <div className="mb-2">
+                    <div className="h-1.5 bg-[#eae6df] rounded-full overflow-hidden flex">
+                      <div
+                        className="bg-[#c4a265]/60 h-full"
+                        style={{
+                          width: `${Math.min((sf.foodCost / sf.revenue) * 100, 100)}%`,
+                        }}
+                      />
+                      <div
+                        className="bg-[#1a1a1a]/30 h-full"
+                        style={{
+                          width: `${Math.min((sf.laborCost / sf.revenue) * 100, 100)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-[9px] text-[#c4a265]/70 tracking-wider">
+                        F {((sf.foodCost / sf.revenue) * 100).toFixed(1)}%
+                      </span>
+                      <span className="text-[9px] text-[#8a8a8a]/70 tracking-wider">
+                        L {((sf.laborCost / sf.revenue) * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 食材費・人件費 */}
+                <div className="space-y-1 pt-1 border-t border-[#eae6df]/50">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] text-[#8a8a8a] tracking-[0.15em] flex items-center gap-1">
+                      <UtensilsCrossed
+                        size={9}
+                        className="text-[#c4a265]/50"
+                        strokeWidth={1.5}
+                      />
+                      食材費
+                    </span>
+                    <span className="text-[11px] text-red-600/60 tracking-wider">
+                      {sf.foodCost > 0
+                        ? `¥${(sf.foodCost / 10000).toFixed(0)}万`
+                        : "—"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] text-[#8a8a8a] tracking-[0.15em] flex items-center gap-1">
+                      <Users
+                        size={9}
+                        className="text-[#8a8a8a]/50"
+                        strokeWidth={1.5}
+                      />
+                      人件費
+                    </span>
+                    <span className="text-[11px] text-red-600/60 tracking-wider">
+                      {sf.laborCost > 0
+                        ? `¥${(sf.laborCost / 10000).toFixed(0)}万`
+                        : "—"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* FL警告 */}
+                {sf.flRate > 65 && (
+                  <div className="mt-2 flex items-center gap-1 text-[9px] text-red-500/70 tracking-wider">
+                    <AlertTriangle size={10} strokeWidth={1.5} />
+                    FL率が高めです
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
@@ -456,7 +670,7 @@ export default function FinancePage() {
                       setFormCategory(e.target.value);
                       if (formError) setFormError("");
                     }}
-                    placeholder="例: 売上（本店）"
+                    placeholder="例: 売上（大嵓埜）"
                     className="w-full text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 text-[#2d2d2d] bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider placeholder:text-[#ccc]"
                   />
                 </div>
@@ -614,8 +828,8 @@ export default function FinancePage() {
           <div className="p-3 text-[10px] text-[#8a8a8a]/50 border-t border-[#eae6df] tracking-wider flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <span>
               最終更新:{" "}
-              {new Date(cashflow.updatedAt).toLocaleString("ja-JP")} | 更新者:
-              木村 健一（経理）
+              {new Date(cashflow.updatedAt).toLocaleString("ja-JP")} | 更新者:{" "}
+              {user.name}
             </span>
             <span>
               {cashflow.details.length}件の明細 | 収入{" "}

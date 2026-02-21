@@ -169,10 +169,10 @@ export const DEMO_USERS: User[] = [
 
 // デモ用店舗データ
 export const DEMO_STORES = [
-  { id: "s1", name: "祥瑞 本店", address: "東京都港区赤坂1-1-1", phone: "03-1234-5678", createdAt: "2015-01-01" },
-  { id: "s2", name: "祥瑞 銀座店", address: "東京都中央区銀座2-2-2", phone: "03-2345-6789", createdAt: "2018-06-01" },
-  { id: "s3", name: "祥瑞 新宿店", address: "東京都新宿区西新宿3-3-3", phone: "03-3456-7890", createdAt: "2020-09-01" },
-  { id: "s4", name: "祥瑞 渋谷店", address: "東京都渋谷区渋谷4-4-4", phone: "03-4567-8901", createdAt: "2022-03-01" },
+  { id: "s1", name: "大嵓埜", address: "大阪府大阪市北区曽根崎新地1-1-1", phone: "06-1234-5678", createdAt: "2015-01-01" },
+  { id: "s2", name: "心斎橋 禅園", address: "大阪府大阪市中央区心斎橋筋2-2-2", phone: "06-2345-6789", createdAt: "2018-06-01" },
+  { id: "s3", name: "西梅田 禅園", address: "大阪府大阪市北区梅田3-3-3", phone: "06-3456-7890", createdAt: "2020-09-01" },
+  { id: "s4", name: "おでん×スタンド", address: "大阪府大阪市中央区難波4-4-4", phone: "06-4567-8901", createdAt: "2022-03-01" },
 ];
 
 // セッション管理（デモ用）

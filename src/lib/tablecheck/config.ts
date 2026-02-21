@@ -12,10 +12,10 @@ export const TABLECHECK_CONFIG = {
 // 社内店舗ID → TableCheck店舗IDの対応表
 // 将来的にTableCheck契約時に実際のIDを設定
 export const STORE_TC_MAP: Record<string, string> = {
-  s1: "tc_honten_001",       // 祥瑞 本店
-  s2: "tc_ginza_001",        // 祥瑞 銀座店
-  s3: "tc_shinjuku_001",     // 祥瑞 新宿店
-  s4: "tc_shibuya_001",      // 祥瑞 渋谷店
+  s1: "tc_okamino_001",      // 大嵓埜
+  s2: "tc_shinsaibashi_001", // 心斎橋 禅園
+  s3: "tc_nishiumeda_001",   // 西梅田 禅園
+  s4: "tc_oden_001",         // おでん×スタンド
 };
 
 // TableCheck店舗ID → 社内店舗IDの逆引き

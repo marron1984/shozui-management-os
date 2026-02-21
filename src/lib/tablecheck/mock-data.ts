@@ -6,10 +6,10 @@ import { TCReservation } from "./types";
 
 // TableCheck APIレスポンスを模した予約データ
 export const MOCK_TC_RESERVATIONS: TCReservation[] = [
-  // 本店 2026-02-22
+  // 大嵓埜 2026-02-22
   {
     id: "tc_rv_001",
-    shop_id: "tc_honten_001",
+    shop_id: "tc_okamino_001",
     date: "2026-02-22",
     start_time: "18:00",
     end_time: "20:00",
@@ -24,7 +24,7 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
   },
   {
     id: "tc_rv_002",
-    shop_id: "tc_honten_001",
+    shop_id: "tc_okamino_001",
     date: "2026-02-22",
     start_time: "19:00",
     end_time: "21:30",
@@ -39,7 +39,7 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
   },
   {
     id: "tc_rv_003",
-    shop_id: "tc_honten_001",
+    shop_id: "tc_okamino_001",
     date: "2026-02-22",
     start_time: "17:30",
     end_time: "19:30",
@@ -52,7 +52,7 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
   },
   {
     id: "tc_rv_004",
-    shop_id: "tc_honten_001",
+    shop_id: "tc_okamino_001",
     date: "2026-02-22",
     start_time: "20:00",
     end_time: "22:00",
@@ -63,23 +63,23 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
     created_at: "2026-02-20T11:00:00Z",
     updated_at: "2026-02-20T11:00:00Z",
   },
-  // 銀座店 2026-02-22
+  // 心斎橋 禅園 2026-02-22
   {
     id: "tc_rv_005",
-    shop_id: "tc_ginza_001",
+    shop_id: "tc_shinsaibashi_001",
     date: "2026-02-22",
     start_time: "18:30",
     end_time: "20:30",
     num_people: 2,
     customer: { name: "田村様", phone: "090-2222-3333" },
-    course: { name: "銀座特選コース", price: 20000 },
+    course: { name: "心斎橋特選コース", price: 20000 },
     status: "confirmed",
     created_at: "2026-02-19T16:00:00Z",
     updated_at: "2026-02-19T16:00:00Z",
   },
   {
     id: "tc_rv_006",
-    shop_id: "tc_ginza_001",
+    shop_id: "tc_shinsaibashi_001",
     date: "2026-02-22",
     start_time: "19:00",
     end_time: "21:00",
@@ -94,7 +94,7 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
   },
   {
     id: "tc_rv_007",
-    shop_id: "tc_ginza_001",
+    shop_id: "tc_shinsaibashi_001",
     date: "2026-02-22",
     start_time: "12:00",
     end_time: "14:00",
@@ -105,10 +105,10 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
     created_at: "2026-02-20T09:00:00Z",
     updated_at: "2026-02-22T14:00:00Z",
   },
-  // 新宿店 2026-02-22
+  // 西梅田 禅園 2026-02-22
   {
     id: "tc_rv_008",
-    shop_id: "tc_shinjuku_001",
+    shop_id: "tc_nishiumeda_001",
     date: "2026-02-22",
     start_time: "18:00",
     end_time: "20:00",
@@ -120,10 +120,10 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
     created_at: "2026-02-21T12:00:00Z",
     updated_at: "2026-02-21T12:00:00Z",
   },
-  // 本店 2026-02-23
+  // 大嵓埜 2026-02-23
   {
     id: "tc_rv_009",
-    shop_id: "tc_honten_001",
+    shop_id: "tc_okamino_001",
     date: "2026-02-23",
     start_time: "12:00",
     end_time: "14:00",
@@ -137,7 +137,7 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
   },
   {
     id: "tc_rv_010",
-    shop_id: "tc_honten_001",
+    shop_id: "tc_okamino_001",
     date: "2026-02-23",
     start_time: "18:00",
     end_time: "20:00",
@@ -148,16 +148,16 @@ export const MOCK_TC_RESERVATIONS: TCReservation[] = [
     created_at: "2026-02-22T10:00:00Z",
     updated_at: "2026-02-22T10:00:00Z",
   },
-  // 渋谷店 2026-02-22
+  // おでん×スタンド 2026-02-22
   {
     id: "tc_rv_011",
-    shop_id: "tc_shibuya_001",
+    shop_id: "tc_oden_001",
     date: "2026-02-22",
     start_time: "19:30",
     end_time: "21:30",
     num_people: 4,
     customer: { name: "岡本様" },
-    course: { name: "渋谷限定コース", price: 12000 },
+    course: { name: "おでんスペシャルコース", price: 12000 },
     status: "confirmed",
     created_at: "2026-02-21T15:00:00Z",
     updated_at: "2026-02-21T15:00:00Z",
