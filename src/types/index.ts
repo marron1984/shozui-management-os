@@ -185,12 +185,19 @@ export interface Reservation {
   storeName: string;
   date: string;
   time: string;
+  endTime?: string;
   guestName: string;
   guestCount: number;
   tableNumber?: string;
   specialRequest?: string;
-  status: "confirmed" | "cancelled" | "completed";
+  status: "confirmed" | "cancelled" | "completed" | "no_show" | "seated";
   source: "tablecheck" | "phone" | "walk_in";
+  tableCheckId?: string;
+  courseName?: string;
+  coursePrice?: number;
+  guestPhone?: string;
+  guestEmail?: string;
+  syncedAt?: string;
 }
 
 // チャットメッセージ

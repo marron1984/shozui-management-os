@@ -9,7 +9,6 @@ import {
   DEMO_DAILY_REPORTS,
   DEMO_MONTHLY_REPORTS,
   DEMO_APPROVAL_REQUESTS,
-  DEMO_RESERVATIONS,
   DEMO_SUGGESTIONS,
 } from "@/lib/demo-data";
 import {
@@ -20,13 +19,18 @@ import {
   AlertCircle,
   Store,
   MessageSquare,
+  RefreshCw,
+  CloudOff,
 } from "lucide-react";
 import Link from "next/link";
-import { User } from "@/types";
+import { User, Reservation } from "@/types";
 
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [todayReservations, setTodayReservations] = useState<Reservation[]>([]);
+  const [reservationsSyncing, setReservationsSyncing] = useState(false);
+  const [reservationsSource, setReservationsSource] = useState<"mock" | "live" | null>(null);
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -37,15 +41,30 @@ export default function Dashboard() {
     setUser(u);
   }, [router]);
 
+  // 予約データをAPIから取得
+  useEffect(() => {
+    if (!user) return;
+    setReservationsSyncing(true);
+    const demoToday = "2026-02-22";
+    fetch(`/api/tablecheck/reservations?date=${demoToday}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTodayReservations(data.reservations || []);
+        setReservationsSource(data.source || "mock");
+      })
+      .catch(() => {
+        setTodayReservations([]);
+      })
+      .finally(() => setReservationsSyncing(false));
+  }, [user]);
+
   if (!user) return null;
 
   const now = new Date();
   const today = now.toISOString().split("T")[0];
-  // デモデータは2026-02-22固定なので、デモ用にフォールバック
   const demoToday = "2026-02-22";
   const todayReports = DEMO_DAILY_REPORTS.filter((r) => r.date === today || r.date === demoToday);
   const pendingApprovals = DEMO_APPROVAL_REQUESTS.filter((a) => a.status === "pending");
-  const todayReservations = DEMO_RESERVATIONS.filter((r) => r.date === today || r.date === demoToday);
 
   const totalRevenue = DEMO_MONTHLY_REPORTS.filter((r) => r.year === 2026 && r.month === 1).reduce(
     (sum, r) => sum + r.revenue,
@@ -73,8 +92,8 @@ export default function Dashboard() {
     },
     {
       label: "本日の予約",
-      value: todayReservations.length.toString(),
-      sub: `組（計${todayReservations.reduce((s, r) => s + r.guestCount, 0)}名）`,
+      value: reservationsSyncing ? "..." : todayReservations.length.toString(),
+      sub: reservationsSyncing ? "同期中" : `組（計${todayReservations.reduce((s, r) => s + r.guestCount, 0)}名）`,
       icon: CalendarCheck,
       href: "/reservations",
     },
@@ -239,35 +258,58 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 本日の予約 */}
+          {/* 本日の予約（TC連携） */}
           <div className="bg-white border border-[#e0dbd2] rounded-sm">
             <div className="p-4 border-b border-[#e0dbd2] flex items-center justify-between">
               <h3 className="text-sm font-medium text-[#2d2d2d] flex items-center gap-2 tracking-wider">
                 <CalendarCheck size={15} className="text-[#c4a265]" strokeWidth={1.5} />
                 本日の予約状況
+                {reservationsSource && (
+                  <span className="flex items-center gap-1 text-[9px] text-[#8a8a8a]/50">
+                    <CloudOff size={9} strokeWidth={1.5} />
+                    {reservationsSource === "mock" ? "Mock" : "Live"}
+                  </span>
+                )}
               </h3>
               <Link href="/reservations" className="text-[10px] text-[#c4a265] hover:text-[#b8860b] tracking-wider transition-colors duration-300">
                 すべて見る →
               </Link>
             </div>
             <div className="divide-y divide-[#eae6df]">
-              {todayReservations.map((r) => (
-                <div key={r.id} className="p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-[#2d2d2d] tracking-wider">
-                      {r.time} - {r.guestName}
-                    </span>
-                    <span className="text-[10px] text-[#8a8a8a] tracking-wider">{r.guestCount}名</span>
-                  </div>
-                  <div className="text-[10px] text-[#8a8a8a] tracking-wider">
-                    {r.storeName}
-                    {r.tableNumber && ` | ${r.tableNumber}`}
-                  </div>
-                  {r.specialRequest && (
-                    <div className="text-[10px] text-[#c4a265] mt-1 tracking-wider">{r.specialRequest}</div>
-                  )}
+              {reservationsSyncing ? (
+                <div className="p-6 text-center">
+                  <RefreshCw size={16} className="mx-auto text-[#c4a265] animate-spin mb-2" strokeWidth={1.5} />
+                  <p className="text-[10px] text-[#8a8a8a] tracking-wider">テーブルチェック同期中...</p>
                 </div>
-              ))}
+              ) : todayReservations.length === 0 ? (
+                <div className="p-6 text-center text-[#8a8a8a] text-xs tracking-wider">予約はありません</div>
+              ) : (
+                todayReservations.slice(0, 5).map((r) => (
+                  <div key={r.id} className="p-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-[#2d2d2d] tracking-wider">
+                        {r.time} - {r.guestName}
+                      </span>
+                      <span className="text-[10px] text-[#8a8a8a] tracking-wider">{r.guestCount}名</span>
+                    </div>
+                    <div className="text-[10px] text-[#8a8a8a] tracking-wider">
+                      {r.storeName}
+                      {r.tableNumber && ` | ${r.tableNumber}`}
+                      {r.courseName && ` | ${r.courseName}`}
+                    </div>
+                    {r.specialRequest && (
+                      <div className="text-[10px] text-[#c4a265] mt-1 tracking-wider">{r.specialRequest}</div>
+                    )}
+                  </div>
+                ))
+              )}
+              {!reservationsSyncing && todayReservations.length > 5 && (
+                <div className="p-3 text-center">
+                  <Link href="/reservations" className="text-[10px] text-[#c4a265] hover:text-[#b8860b] tracking-wider transition-colors duration-300">
+                    他 {todayReservations.length - 5} 件を表示 →
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
