@@ -88,6 +88,7 @@ export interface MonthlyReport {
 // 稟議書
 export interface ApprovalRequest {
   id: string;
+  approvalNumber: string;   // 自動付番（例: 稟-2026-001）
   title: string;
   description: string;
   amount: number;

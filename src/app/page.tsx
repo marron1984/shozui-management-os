@@ -182,7 +182,10 @@ export default function Dashboard() {
               {DEMO_APPROVAL_REQUESTS.map((req) => (
                 <div key={req.id} className="p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-[#2d2d2d] tracking-wider">{req.title}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-[#8a8a8a]/50 font-mono tracking-wider">{req.approvalNumber}</span>
+                      <span className="text-sm text-[#2d2d2d] tracking-wider">{req.title}</span>
+                    </div>
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded-sm tracking-wider ${
                         req.status === "pending"

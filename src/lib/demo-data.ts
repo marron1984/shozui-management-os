@@ -125,6 +125,7 @@ export const DEMO_MONTHLY_REPORTS: MonthlyReport[] = [
 export const DEMO_APPROVAL_REQUESTS: ApprovalRequest[] = [
   {
     id: "ar1",
+    approvalNumber: "稟-2026-001",
     title: "本店 厨房機器更新（業務用冷蔵庫）",
     description: "業務用冷蔵庫の老朽化に伴い、新型への更新を申請します。現行機種は7年使用で故障頻度が増加しています。",
     amount: 1800000,
@@ -139,6 +140,7 @@ export const DEMO_APPROVAL_REQUESTS: ApprovalRequest[] = [
   },
   {
     id: "ar2",
+    approvalNumber: "稟-2026-002",
     title: "銀座店 内装リフォーム",
     description: "個室エリアの畳替えと壁紙の張り替えを申請します。来客の印象向上のため。",
     amount: 3500000,
@@ -156,6 +158,7 @@ export const DEMO_APPROVAL_REQUESTS: ApprovalRequest[] = [
   },
   {
     id: "ar3",
+    approvalNumber: "稟-2026-003",
     title: "新宿店 POSシステム導入",
     description: "注文・会計効率化のためタブレットPOSシステムの導入を申請します。",
     amount: 950000,
