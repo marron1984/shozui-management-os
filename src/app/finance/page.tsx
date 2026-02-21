@@ -271,7 +271,7 @@ export default function FinancePage() {
               月初残高
             </div>
             <div className="text-lg lg:text-xl font-light text-[#2d2d2d] tracking-wider">
-              ¥{(cashflow.openingBalance / 10000).toFixed(0)}
+              ¥{(cashflow.openingBalance / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}
               <span className="text-[10px] text-[#8a8a8a] ml-0.5">万</span>
             </div>
           </div>
@@ -287,7 +287,7 @@ export default function FinancePage() {
               収入
             </div>
             <div className="text-lg lg:text-xl font-light text-green-700/70 tracking-wider">
-              +¥{(calc.income / 10000).toFixed(0)}
+              +¥{(calc.income / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}
               <span className="text-[10px] text-[#8a8a8a] ml-0.5">万</span>
             </div>
           </div>
@@ -303,7 +303,7 @@ export default function FinancePage() {
               支出
             </div>
             <div className="text-lg lg:text-xl font-light text-red-600/70 tracking-wider">
-              -¥{(calc.expenses / 10000).toFixed(0)}
+              -¥{(calc.expenses / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}
               <span className="text-[10px] text-[#8a8a8a] ml-0.5">万</span>
             </div>
           </div>
@@ -318,7 +318,7 @@ export default function FinancePage() {
               現在残高
             </div>
             <div className="text-lg lg:text-xl font-light text-[#c4a265] tracking-wider">
-              ¥{(calc.currentBalance / 10000).toFixed(0)}
+              ¥{(calc.currentBalance / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}
               <span className="text-[10px] text-[#c4a265]/60 ml-0.5">万</span>
             </div>
           </div>
@@ -329,7 +329,7 @@ export default function FinancePage() {
               月末残高（見込）
             </div>
             <div className="text-lg lg:text-xl font-light text-[#c4a265] tracking-wider">
-              ¥{(calc.closingBalance / 10000).toFixed(0)}
+              ¥{(calc.closingBalance / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}
               <span className="text-[10px] text-[#c4a265]/50 ml-0.5">万</span>
             </div>
           </div>
@@ -349,7 +349,7 @@ export default function FinancePage() {
                     月初
                   </div>
                   <div className="text-sm font-light text-[#2d2d2d] tracking-wider">
-                    ¥{(cashflow.openingBalance / 10000).toFixed(0)}万
+                    ¥{(cashflow.openingBalance / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
                   </div>
                 </div>
               </div>
@@ -373,12 +373,12 @@ export default function FinancePage() {
                 </div>
                 {calc.pastIncome > 0 && (
                   <div className="text-green-700/70 text-[11px] tracking-wider">
-                    +¥{(calc.pastIncome / 10000).toFixed(0)}万
+                    +¥{(calc.pastIncome / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
                   </div>
                 )}
                 {calc.pastExpenses > 0 && (
                   <div className="text-red-600/70 text-[11px] tracking-wider">
-                    -¥{(calc.pastExpenses / 10000).toFixed(0)}万
+                    -¥{(calc.pastExpenses / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
                   </div>
                 )}
                 {calc.pastIncome === 0 && calc.pastExpenses === 0 && (
@@ -401,7 +401,7 @@ export default function FinancePage() {
                     NOW
                   </div>
                   <div className="text-sm font-light text-[#c4a265] tracking-wider">
-                    ¥{(calc.currentBalance / 10000).toFixed(0)}万
+                    ¥{(calc.currentBalance / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
                   </div>
                 </div>
               </div>
@@ -425,12 +425,12 @@ export default function FinancePage() {
                 </div>
                 {calc.futureIncome > 0 && (
                   <div className="text-green-700/70 text-[11px] tracking-wider">
-                    +¥{(calc.futureIncome / 10000).toFixed(0)}万
+                    +¥{(calc.futureIncome / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
                   </div>
                 )}
                 {calc.futureExpenses > 0 && (
                   <div className="text-red-600/70 text-[11px] tracking-wider">
-                    -¥{(calc.futureExpenses / 10000).toFixed(0)}万
+                    -¥{(calc.futureExpenses / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
                   </div>
                 )}
                 {calc.futureIncome === 0 && calc.futureExpenses === 0 && (
@@ -449,7 +449,7 @@ export default function FinancePage() {
                     月末
                   </div>
                   <div className="text-sm font-light text-[#2d2d2d] tracking-wider">
-                    ¥{(calc.closingBalance / 10000).toFixed(0)}万
+                    ¥{(calc.closingBalance / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
                   </div>
                 </div>
               </div>
@@ -519,7 +519,7 @@ export default function FinancePage() {
                     </span>
                     <span className="text-sm font-light text-[#2d2d2d] tracking-wider">
                       {sf.revenue > 0
-                        ? `¥${(sf.revenue / 10000).toFixed(0)}万`
+                        ? `¥${(sf.revenue / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万`
                         : "—"}
                     </span>
                   </div>
@@ -566,7 +566,7 @@ export default function FinancePage() {
                     </span>
                     <span className="text-[11px] text-red-600/60 tracking-wider">
                       {sf.foodCost > 0
-                        ? `¥${(sf.foodCost / 10000).toFixed(0)}万`
+                        ? `¥${(sf.foodCost / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万`
                         : "—"}
                     </span>
                   </div>
@@ -581,7 +581,7 @@ export default function FinancePage() {
                     </span>
                     <span className="text-[11px] text-red-600/60 tracking-wider">
                       {sf.laborCost > 0
-                        ? `¥${(sf.laborCost / 10000).toFixed(0)}万`
+                        ? `¥${(sf.laborCost / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万`
                         : "—"}
                     </span>
                   </div>

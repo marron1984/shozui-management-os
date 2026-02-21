@@ -119,8 +119,8 @@ export default function Dashboard() {
     },
     {
       label: "月間売上（1月）",
-      value: `¥${(totalRevenue / 10000).toFixed(0)}万`,
-      sub: `利益 ¥${(totalProfit / 10000).toFixed(0)}万`,
+      value: `¥${(totalRevenue / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万`,
+      sub: `利益 ¥${(totalProfit / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万`,
       icon: TrendingUp,
       href: "/monthly-reports",
     },

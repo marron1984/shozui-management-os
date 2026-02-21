@@ -90,16 +90,16 @@ export default function MonthlyReportsPage() {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-6">
             <div>
-              <div className="text-2xl font-light text-[#c4a265] tracking-wider">¥{(totalRevenue / 10000).toFixed(0)}万</div>
+              <div className="text-2xl font-light text-[#c4a265] tracking-wider">¥{(totalRevenue / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万</div>
               <div className="text-[10px] text-white/30 mt-1 tracking-[0.15em]">売上</div>
             </div>
             <div>
-              <div className="text-2xl font-light text-white/70 tracking-wider">¥{(totalExpenses / 10000).toFixed(0)}万</div>
+              <div className="text-2xl font-light text-white/70 tracking-wider">¥{(totalExpenses / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万</div>
               <div className="text-[10px] text-white/30 mt-1 tracking-[0.15em]">経費</div>
             </div>
             <div>
               <div className={`text-2xl font-light tracking-wider ${totalProfit > 0 ? "text-green-400/80" : "text-red-400/80"}`}>
-                ¥{(totalProfit / 10000).toFixed(0)}万
+                ¥{(totalProfit / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
               </div>
               <div className="text-[10px] text-white/30 mt-1 tracking-[0.15em]">利益</div>
             </div>
@@ -127,12 +127,12 @@ export default function MonthlyReportsPage() {
 
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="bg-[#fafaf7] border border-[#eae6df] rounded-sm p-3">
-                  <div className="text-lg font-light text-[#2d2d2d] tracking-wider">¥{(report.revenue / 10000).toFixed(0)}万</div>
+                  <div className="text-lg font-light text-[#2d2d2d] tracking-wider">¥{(report.revenue / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万</div>
                   <div className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">売上</div>
                 </div>
                 <div className="bg-[#fafaf7] border border-[#eae6df] rounded-sm p-3">
                   <div className={`text-lg font-light tracking-wider ${report.profit > 0 ? "text-green-700/70" : "text-red-700/70"}`}>
-                    ¥{(report.profit / 10000).toFixed(0)}万
+                    ¥{(report.profit / 10000).toLocaleString("ja-JP", { maximumFractionDigits: 0 })}万
                   </div>
                   <div className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">利益</div>
                 </div>
