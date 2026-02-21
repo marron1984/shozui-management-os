@@ -54,29 +54,31 @@ export default function MonthlyReportsPage() {
       <div className="p-4 lg:p-8">
         {/* 月選択 */}
         <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 mb-6">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="text-xs border border-[#e0dbd2] rounded-sm px-3 py-1.5 text-[#2d2d2d] bg-[#fafaf7] focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+              className="text-xs border border-[#e0dbd2] rounded-sm px-3 py-1.5 text-[#2d2d2d] bg-[#fafaf7] focus:outline-none focus:border-[#c4a265]/50 tracking-wider flex-shrink-0"
             >
               <option value={2026}>2026年</option>
               <option value={2025}>2025年</option>
             </select>
-            <div className="flex gap-1">
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setSelectedMonth(m)}
-                  className={`px-3 py-1.5 text-[11px] rounded-sm transition-all duration-300 tracking-wider ${
-                    selectedMonth === m
-                      ? "bg-[#c4a265] text-white"
-                      : "text-[#8a8a8a] hover:bg-[#f5f3ee]"
-                  }`}
-                >
-                  {m}月
-                </button>
-              ))}
+            <div className="w-full overflow-x-auto -mx-1 px-1">
+              <div className="flex gap-1 min-w-max">
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setSelectedMonth(m)}
+                    className={`px-2.5 sm:px-3 py-1.5 text-[11px] rounded-sm transition-all duration-300 tracking-wider flex-shrink-0 ${
+                      selectedMonth === m
+                        ? "bg-[#c4a265] text-white"
+                        : "text-[#8a8a8a] hover:bg-[#f5f3ee]"
+                    }`}
+                  >
+                    {m}月
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
