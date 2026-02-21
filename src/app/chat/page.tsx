@@ -51,24 +51,24 @@ export default function ChatPage() {
 
   const channelIcon = (type: string) => {
     switch (type) {
-      case "store": return <Hash size={14} className="text-green-500" />;
-      case "management": return <Users size={14} className="text-blue-500" />;
-      case "direct": return <UserIcon size={14} className="text-purple-500" />;
-      case "all": return <Users size={14} className="text-amber-500" />;
-      default: return <Hash size={14} />;
+      case "store": return <Hash size={13} className="text-[#c4a265]" strokeWidth={1.5} />;
+      case "management": return <Users size={13} className="text-[#c4a265]" strokeWidth={1.5} />;
+      case "direct": return <UserIcon size={13} className="text-[#8a8a8a]" strokeWidth={1.5} />;
+      case "all": return <Users size={13} className="text-[#c4a265]" strokeWidth={1.5} />;
+      default: return <Hash size={13} strokeWidth={1.5} />;
     }
   };
 
   return (
-    <div>
-      <Header title="チャット" />
-      <div className="p-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" style={{ height: "calc(100vh - 140px)" }}>
+    <div className="bg-[#fafaf7] min-h-screen">
+      <Header title="連絡" />
+      <div className="p-8">
+        <div className="bg-white border border-[#e0dbd2] rounded-sm overflow-hidden" style={{ height: "calc(100vh - 140px)" }}>
           <div className="flex h-full">
             {/* チャンネルリスト */}
-            <div className="w-64 border-r border-gray-100 flex flex-col">
-              <div className="p-3 border-b border-gray-100">
-                <h3 className="font-bold text-sm text-gray-700">チャンネル</h3>
+            <div className="w-64 border-r border-[#e0dbd2] flex flex-col bg-[#fafaf7]">
+              <div className="p-3 border-b border-[#e0dbd2]">
+                <h3 className="text-[11px] text-[#2d2d2d] tracking-[0.15em]">チャンネル</h3>
               </div>
               <div className="flex-1 overflow-y-auto">
                 {userChannels.map((ch) => {
@@ -79,25 +79,25 @@ export default function ChatPage() {
                     <button
                       key={ch.id}
                       onClick={() => setSelectedChannel(ch)}
-                      className={`w-full p-3 text-left border-b border-gray-50 transition-colors ${
-                        selectedChannel?.id === ch.id ? "bg-amber-50" : "hover:bg-gray-50"
+                      className={`w-full p-3 text-left border-b border-[#eae6df]/50 transition-colors duration-300 ${
+                        selectedChannel?.id === ch.id ? "bg-[#c4a265]/[0.06]" : "hover:bg-white"
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {channelIcon(ch.type)}
-                          <span className={`text-sm ${selectedChannel?.id === ch.id ? "font-bold text-amber-700" : "text-gray-700"}`}>
+                          <span className={`text-xs tracking-wider ${selectedChannel?.id === ch.id ? "text-[#c4a265]" : "text-[#2d2d2d]"}`}>
                             {ch.name}
                           </span>
                         </div>
                         {unread > 0 && (
-                          <span className="w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+                          <span className="w-4 h-4 bg-red-500/80 text-white text-[9px] rounded-full flex items-center justify-center">
                             {unread}
                           </span>
                         )}
                       </div>
                       {ch.lastMessage && (
-                        <p className="text-[10px] text-gray-400 mt-1 truncate pl-5">{ch.lastMessage}</p>
+                        <p className="text-[10px] text-[#8a8a8a]/60 mt-1 truncate pl-5">{ch.lastMessage}</p>
                       )}
                     </button>
                   );
@@ -110,16 +110,16 @@ export default function ChatPage() {
               {selectedChannel ? (
                 <>
                   {/* チャンネルヘッダー */}
-                  <div className="p-3 border-b border-gray-100 flex items-center gap-2">
+                  <div className="p-3 border-b border-[#e0dbd2] flex items-center gap-2 bg-[#fafaf7]">
                     {channelIcon(selectedChannel.type)}
-                    <h3 className="font-bold text-sm text-gray-800">{selectedChannel.name}</h3>
-                    <span className="text-xs text-gray-400">
+                    <h3 className="text-xs text-[#2d2d2d] tracking-wider">{selectedChannel.name}</h3>
+                    <span className="text-[10px] text-[#8a8a8a]/60 tracking-wider">
                       ({selectedChannel.members.length}人)
                     </span>
                   </div>
 
                   {/* メッセージ一覧 */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
                     {channelMessages.map((msg) => {
                       const isOwn = msg.senderId === user.id;
                       return (
@@ -127,26 +127,26 @@ export default function ChatPage() {
                           key={msg.id}
                           className={`flex gap-3 ${isOwn ? "flex-row-reverse" : ""}`}
                         >
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-medium flex-shrink-0 ${
                             isOwn
-                              ? "bg-gradient-to-br from-amber-400 to-amber-600 text-white"
-                              : "bg-gray-200 text-gray-600"
+                              ? "bg-[#1a1a1a] text-[#c4a265] border border-[#c4a265]/30"
+                              : "bg-[#f5f3ee] text-[#8a8a8a] border border-[#e0dbd2]"
                           }`}>
                             {msg.senderName.charAt(0)}
                           </div>
                           <div className={`max-w-md ${isOwn ? "text-right" : ""}`}>
                             <div className="flex items-center gap-2 mb-0.5">
                               {!isOwn && (
-                                <span className="text-xs font-medium text-gray-700">{msg.senderName}</span>
+                                <span className="text-[10px] text-[#2d2d2d] tracking-wider">{msg.senderName}</span>
                               )}
-                              <span className="text-[10px] text-gray-400">
+                              <span className="text-[9px] text-[#8a8a8a]/50 tracking-wider">
                                 {new Date(msg.createdAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
                               </span>
                             </div>
-                            <div className={`inline-block px-3 py-2 rounded-xl text-sm ${
+                            <div className={`inline-block px-3 py-2 text-xs tracking-wider ${
                               isOwn
-                                ? "bg-amber-500 text-white rounded-tr-sm"
-                                : "bg-gray-100 text-gray-700 rounded-tl-sm"
+                                ? "bg-[#1a1a1a] text-white/90 rounded-sm rounded-tr-none"
+                                : "bg-[#f5f3ee] text-[#2d2d2d] border border-[#eae6df] rounded-sm rounded-tl-none"
                             }`}>
                               {msg.content}
                             </div>
@@ -157,10 +157,10 @@ export default function ChatPage() {
                   </div>
 
                   {/* 入力エリア */}
-                  <div className="p-3 border-t border-gray-100">
+                  <div className="p-3 border-t border-[#e0dbd2] bg-[#fafaf7]">
                     <div className="flex gap-2">
-                      <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                        <Paperclip size={18} />
+                      <button className="p-2 text-[#8a8a8a] hover:text-[#c4a265] transition-colors duration-300">
+                        <Paperclip size={16} strokeWidth={1.5} />
                       </button>
                       <input
                         type="text"
@@ -168,24 +168,24 @@ export default function ChatPage() {
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSend()}
                         placeholder="メッセージを入力..."
-                        className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="flex-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
                       />
                       <button
                         onClick={handleSend}
                         disabled={!newMessage.trim()}
-                        className="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600 disabled:opacity-40 transition-colors flex items-center gap-1"
+                        className="px-4 py-2 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] disabled:opacity-30 transition-colors duration-300 flex items-center gap-1 tracking-wider"
                       >
-                        <Send size={14} />
+                        <Send size={12} strokeWidth={1.5} />
                         送信
                       </button>
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center text-gray-400">
+                <div className="flex-1 flex items-center justify-center text-[#8a8a8a] bg-white">
                   <div className="text-center">
-                    <MessageCircle size={40} className="mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">チャンネルを選択してください</p>
+                    <MessageCircle size={32} className="mx-auto mb-2 opacity-15" strokeWidth={1} />
+                    <p className="text-xs tracking-wider">チャンネルを選択してください</p>
                   </div>
                 </div>
               )}

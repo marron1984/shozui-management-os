@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_PROMOTIONS } from "@/lib/demo-data";
 import { User, PromotionMaterial } from "@/types";
-import { Image as ImageIcon, Camera, Video, FileText, FolderOpen, Filter, Plus } from "lucide-react";
+import { Camera, Video, FileText, FolderOpen, Plus } from "lucide-react";
 
 const typeLabels: Record<string, string> = {
   menu_meeting: "メニュー会議",
@@ -17,11 +17,11 @@ const typeLabels: Record<string, string> = {
 };
 
 const typeColors: Record<string, string> = {
-  menu_meeting: "bg-blue-100 text-blue-700",
-  seasonal: "bg-green-100 text-green-700",
-  special_course: "bg-purple-100 text-purple-700",
-  dm: "bg-orange-100 text-orange-700",
-  promo: "bg-pink-100 text-pink-700",
+  menu_meeting: "bg-[#c4a265]/10 text-[#c4a265]",
+  seasonal: "bg-green-50 text-green-700/70",
+  special_course: "bg-[#f5f3ee] text-[#4a4a4a]",
+  dm: "bg-[#c4a265]/10 text-[#b8860b]",
+  promo: "bg-[#f5f3ee] text-[#8a8a8a]",
 };
 
 export default function PromotionsPage() {
@@ -43,16 +43,16 @@ export default function PromotionsPage() {
     : DEMO_PROMOTIONS.filter((p) => p.type === filterType);
 
   return (
-    <div>
-      <Header title="プロモーション素材管理" />
-      <div className="p-6">
+    <div className="bg-[#fafaf7] min-h-screen">
+      <Header title="販促素材管理" />
+      <div className="p-8">
         {/* フィルター */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setFilterType("all")}
-              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                filterType === "all" ? "bg-amber-500 text-white" : "bg-white text-gray-600 border border-gray-200"
+              className={`px-3 py-1.5 text-[11px] rounded-sm transition-all duration-300 tracking-wider ${
+                filterType === "all" ? "bg-[#c4a265] text-white" : "bg-white text-[#8a8a8a] border border-[#e0dbd2]"
               }`}
             >
               すべて
@@ -61,16 +61,16 @@ export default function PromotionsPage() {
               <button
                 key={key}
                 onClick={() => setFilterType(key)}
-                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                  filterType === key ? "bg-amber-500 text-white" : "bg-white text-gray-600 border border-gray-200"
+                className={`px-3 py-1.5 text-[11px] rounded-sm transition-all duration-300 tracking-wider ${
+                  filterType === key ? "bg-[#c4a265] text-white" : "bg-white text-[#8a8a8a] border border-[#e0dbd2]"
                 }`}
               >
                 {label}
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600">
-            <Plus size={16} />
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 tracking-wider">
+            <Plus size={14} strokeWidth={1.5} />
             新規追加
           </button>
         </div>
@@ -78,21 +78,21 @@ export default function PromotionsPage() {
         {/* フォルダ構造＋コンテンツ */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* フォルダツリー */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-            <h3 className="font-bold text-sm text-gray-700 mb-3 flex items-center gap-2">
-              <FolderOpen size={16} className="text-amber-500" />
+          <div className="bg-white border border-[#e0dbd2] rounded-sm p-4">
+            <h3 className="text-[11px] text-[#2d2d2d] mb-3 flex items-center gap-2 tracking-[0.15em]">
+              <FolderOpen size={14} className="text-[#c4a265]" strokeWidth={1.5} />
               年度・月別
             </h3>
-            <div className="space-y-1 text-sm">
-              <div className="font-medium text-gray-600 pl-2">2026年度</div>
+            <div className="space-y-1 text-xs">
+              <div className="text-[#2d2d2d] pl-2 tracking-wider">2026年度</div>
               <div className="pl-6 space-y-0.5">
                 {[3, 2, 1].map((m) => (
                   <div
                     key={m}
-                    className="px-2 py-1 rounded text-xs text-gray-500 hover:bg-gray-50 cursor-pointer"
+                    className="px-2 py-1 rounded-sm text-[11px] text-[#8a8a8a] hover:bg-[#f5f3ee] cursor-pointer transition-colors duration-300 tracking-wider"
                   >
                     {m}月
-                    <span className="text-gray-300 ml-1">
+                    <span className="text-[#8a8a8a]/40 ml-1">
                       ({DEMO_PROMOTIONS.filter((p) => p.month === m).length})
                     </span>
                   </div>
@@ -108,36 +108,36 @@ export default function PromotionsPage() {
                 <button
                   key={item.id}
                   onClick={() => setSelectedItem(item)}
-                  className={`bg-white rounded-xl shadow-sm border text-left transition-all hover:shadow-md overflow-hidden ${
-                    selectedItem?.id === item.id ? "border-amber-500 ring-1 ring-amber-500" : "border-gray-100"
+                  className={`bg-white border text-left transition-all duration-300 hover:border-[#c4a265]/30 overflow-hidden rounded-sm ${
+                    selectedItem?.id === item.id ? "border-[#c4a265]" : "border-[#e0dbd2]"
                   }`}
                 >
                   {/* サムネイル */}
-                  <div className="h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    <Camera size={32} className="text-gray-300" />
+                  <div className="h-32 bg-gradient-to-br from-[#f5f3ee] to-[#eae6df] flex items-center justify-center">
+                    <Camera size={28} className="text-[#e0dbd2]" strokeWidth={1} />
                   </div>
                   <div className="p-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded ${typeColors[item.type]}`}>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-sm tracking-wider ${typeColors[item.type]}`}>
                         {typeLabels[item.type]}
                       </span>
                     </div>
-                    <h4 className="font-medium text-sm text-gray-800 mb-1">{item.title}</h4>
-                    <p className="text-[10px] text-gray-400 line-clamp-1">{item.description}</p>
-                    <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-400">
+                    <h4 className="text-xs text-[#2d2d2d] mb-1 tracking-wider">{item.title}</h4>
+                    <p className="text-[10px] text-[#8a8a8a] line-clamp-1">{item.description}</p>
+                    <div className="flex items-center gap-3 mt-2 text-[10px] text-[#8a8a8a]/60 tracking-wider">
                       {item.photos.length > 0 && (
                         <span className="flex items-center gap-0.5">
-                          <Camera size={9} /> {item.photos.length}
+                          <Camera size={9} strokeWidth={1.5} /> {item.photos.length}
                         </span>
                       )}
                       {item.videos.length > 0 && (
                         <span className="flex items-center gap-0.5">
-                          <Video size={9} /> {item.videos.length}
+                          <Video size={9} strokeWidth={1.5} /> {item.videos.length}
                         </span>
                       )}
                       {item.documents.length > 0 && (
                         <span className="flex items-center gap-0.5">
-                          <FileText size={9} /> {item.documents.length}
+                          <FileText size={9} strokeWidth={1.5} /> {item.documents.length}
                         </span>
                       )}
                       <span className="ml-auto">{item.year}/{item.month}</span>
@@ -151,31 +151,31 @@ export default function PromotionsPage() {
 
         {/* 詳細モーダル */}
         {selectedItem && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedItem(null)}>
-            <div className="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setSelectedItem(null)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-lg w-full max-h-[80vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <span className={`text-xs px-2 py-0.5 rounded ${typeColors[selectedItem.type]}`}>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-sm tracking-wider ${typeColors[selectedItem.type]}`}>
                     {typeLabels[selectedItem.type]}
                   </span>
-                  <button onClick={() => setSelectedItem(null)} className="text-gray-400 hover:text-gray-600">
-                    ✕
+                  <button onClick={() => setSelectedItem(null)} className="text-[#8a8a8a] hover:text-[#2d2d2d] transition-colors duration-300 text-xs">
+                    閉じる
                   </button>
                 </div>
-                <h3 className="text-lg font-bold text-gray-800 mb-2">{selectedItem.title}</h3>
-                <p className="text-sm text-gray-600 mb-4">{selectedItem.description}</p>
+                <h3 className="text-base font-medium text-[#2d2d2d] mb-2 tracking-wider">{selectedItem.title}</h3>
+                <p className="text-xs text-[#4a4a4a] mb-4 leading-relaxed">{selectedItem.description}</p>
 
                 <div className="space-y-3">
-                  <div className="text-xs text-gray-400">
+                  <div className="text-[10px] text-[#8a8a8a] tracking-wider">
                     {selectedItem.storeName} | {selectedItem.year}年{selectedItem.month}月
                   </div>
                   {selectedItem.photos.length > 0 && (
                     <div>
-                      <div className="text-xs font-medium text-gray-500 mb-2">写真 ({selectedItem.photos.length})</div>
+                      <div className="text-[10px] text-[#8a8a8a] mb-2 tracking-[0.15em]">写真 ({selectedItem.photos.length})</div>
                       <div className="grid grid-cols-3 gap-2">
                         {selectedItem.photos.map((_, i) => (
-                          <div key={i} className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                            <Camera size={20} className="text-gray-300" />
+                          <div key={i} className="aspect-square bg-[#eae6df] rounded-sm flex items-center justify-center border border-[#e0dbd2]">
+                            <Camera size={18} className="text-[#8a8a8a]/30" strokeWidth={1} />
                           </div>
                         ))}
                       </div>
@@ -183,10 +183,10 @@ export default function PromotionsPage() {
                   )}
                   {selectedItem.videos.length > 0 && (
                     <div>
-                      <div className="text-xs font-medium text-gray-500 mb-2">動画 ({selectedItem.videos.length})</div>
+                      <div className="text-[10px] text-[#8a8a8a] mb-2 tracking-[0.15em]">動画 ({selectedItem.videos.length})</div>
                       {selectedItem.videos.map((v, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs text-blue-600">
-                          <Video size={12} />
+                        <div key={i} className="flex items-center gap-2 text-xs text-[#c4a265] tracking-wider">
+                          <Video size={11} strokeWidth={1.5} />
                           {v.split("/").pop()}
                         </div>
                       ))}
@@ -194,10 +194,10 @@ export default function PromotionsPage() {
                   )}
                   {selectedItem.documents.length > 0 && (
                     <div>
-                      <div className="text-xs font-medium text-gray-500 mb-2">資料 ({selectedItem.documents.length})</div>
+                      <div className="text-[10px] text-[#8a8a8a] mb-2 tracking-[0.15em]">資料 ({selectedItem.documents.length})</div>
                       {selectedItem.documents.map((d, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs text-blue-600">
-                          <FileText size={12} />
+                        <div key={i} className="flex items-center gap-2 text-xs text-[#c4a265] tracking-wider">
+                          <FileText size={11} strokeWidth={1.5} />
                           {d.split("/").pop()}
                         </div>
                       ))}

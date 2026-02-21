@@ -11,7 +11,6 @@ import {
   DEMO_APPROVAL_REQUESTS,
   DEMO_RESERVATIONS,
   DEMO_SUGGESTIONS,
-  DEMO_NOTIFICATIONS,
 } from "@/lib/demo-data";
 import {
   FileText,
@@ -63,7 +62,6 @@ export default function Dashboard() {
       value: `${todayReports.length} / ${DEMO_STORES.length}`,
       sub: "店舗提出済み",
       icon: FileText,
-      color: "from-blue-500 to-blue-600",
       href: "/daily-reports",
     },
     {
@@ -71,7 +69,6 @@ export default function Dashboard() {
       value: pendingApprovals.length.toString(),
       sub: "件の承認待ち",
       icon: ClipboardCheck,
-      color: "from-orange-500 to-orange-600",
       href: "/approval",
     },
     {
@@ -79,7 +76,6 @@ export default function Dashboard() {
       value: todayReservations.length.toString(),
       sub: `組（計${todayReservations.reduce((s, r) => s + r.guestCount, 0)}名）`,
       icon: CalendarCheck,
-      color: "from-green-500 to-green-600",
       href: "/reservations",
     },
     {
@@ -87,20 +83,20 @@ export default function Dashboard() {
       value: `¥${(totalRevenue / 10000).toFixed(0)}万`,
       sub: `利益 ¥${(totalProfit / 10000).toFixed(0)}万`,
       icon: TrendingUp,
-      color: "from-purple-500 to-purple-600",
       href: "/monthly-reports",
     },
   ];
 
   return (
-    <div>
+    <div className="bg-[#fafaf7] min-h-screen">
       <Header title="ダッシュボード" />
-      <div className="p-6">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-800">
+      <div className="p-8">
+        {/* 挨拶 */}
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-[#2d2d2d] tracking-wider">
             おはようございます、{user.name}さん
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-[#8a8a8a] mt-1.5 tracking-wider">
             {now.toLocaleDateString("ja-JP", {
               year: "numeric",
               month: "long",
@@ -111,23 +107,21 @@ export default function Dashboard() {
         </div>
 
         {/* 統計カード */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           {statCards.map((card) => (
             <Link
               key={card.label}
               href={card.href}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-white border border-[#e0dbd2] rounded-sm p-5 hover:border-[#c4a265]/40 transition-all duration-300 group"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-sm text-gray-500">{card.label}</div>
-                  <div className="text-2xl font-bold text-gray-800 mt-1">{card.value}</div>
-                  <div className="text-xs text-gray-400 mt-0.5">{card.sub}</div>
+                  <div className="text-[11px] text-[#8a8a8a] tracking-[0.15em]">{card.label}</div>
+                  <div className="text-2xl font-light text-[#2d2d2d] mt-2 tracking-wider">{card.value}</div>
+                  <div className="text-[10px] text-[#8a8a8a]/70 mt-1 tracking-wider">{card.sub}</div>
                 </div>
-                <div
-                  className={`w-10 h-10 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center`}
-                >
-                  <card.icon size={20} className="text-white" />
+                <div className="w-9 h-9 rounded-sm bg-[#c4a265]/[0.08] flex items-center justify-center group-hover:bg-[#c4a265]/[0.15] transition-colors duration-300">
+                  <card.icon size={16} className="text-[#c4a265]" strokeWidth={1.5} />
                 </div>
               </div>
             </Link>
@@ -136,37 +130,37 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 本日の日報 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <FileText size={18} className="text-blue-500" />
+          <div className="bg-white border border-[#e0dbd2] rounded-sm">
+            <div className="p-4 border-b border-[#e0dbd2] flex items-center justify-between">
+              <h3 className="text-sm font-medium text-[#2d2d2d] flex items-center gap-2 tracking-wider">
+                <FileText size={15} className="text-[#c4a265]" strokeWidth={1.5} />
                 本日の日報
               </h3>
-              <Link href="/daily-reports" className="text-xs text-amber-600 hover:text-amber-700">
+              <Link href="/daily-reports" className="text-[10px] text-[#c4a265] hover:text-[#b8860b] tracking-wider transition-colors duration-300">
                 すべて見る →
               </Link>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-[#eae6df]">
               {todayReports.map((report) => (
                 <div key={report.id} className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <Store size={14} className="text-gray-400" />
-                      <span className="font-medium text-sm text-gray-700">{report.storeName}</span>
+                      <Store size={13} className="text-[#8a8a8a]" strokeWidth={1.5} />
+                      <span className="text-sm text-[#2d2d2d] tracking-wider">{report.storeName}</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">
+                    <span className="text-[10px] text-[#8a8a8a]/60 tracking-wider">
                       {new Date(report.submittedAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 line-clamp-2">{report.hallReport}</p>
+                  <p className="text-xs text-[#8a8a8a] line-clamp-2 leading-relaxed">{report.hallReport}</p>
                 </div>
               ))}
               {DEMO_STORES.filter((s) => !todayReports.find((r) => r.storeId === s.id)).map((store) => (
                 <div key={store.id} className="p-4 bg-red-50/30">
                   <div className="flex items-center gap-2">
-                    <AlertCircle size={14} className="text-red-400" />
-                    <span className="text-sm text-red-600">{store.name}</span>
-                    <span className="text-xs text-red-400 ml-auto">未提出</span>
+                    <AlertCircle size={13} className="text-red-400/70" strokeWidth={1.5} />
+                    <span className="text-sm text-red-600/70 tracking-wider">{store.name}</span>
+                    <span className="text-[10px] text-red-400/60 ml-auto tracking-wider">未提出</span>
                   </div>
                 </div>
               ))}
@@ -174,34 +168,34 @@ export default function Dashboard() {
           </div>
 
           {/* 稟議書 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <ClipboardCheck size={18} className="text-orange-500" />
+          <div className="bg-white border border-[#e0dbd2] rounded-sm">
+            <div className="p-4 border-b border-[#e0dbd2] flex items-center justify-between">
+              <h3 className="text-sm font-medium text-[#2d2d2d] flex items-center gap-2 tracking-wider">
+                <ClipboardCheck size={15} className="text-[#c4a265]" strokeWidth={1.5} />
                 稟議書
               </h3>
-              <Link href="/approval" className="text-xs text-amber-600 hover:text-amber-700">
+              <Link href="/approval" className="text-[10px] text-[#c4a265] hover:text-[#b8860b] tracking-wider transition-colors duration-300">
                 すべて見る →
               </Link>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-[#eae6df]">
               {DEMO_APPROVAL_REQUESTS.map((req) => (
                 <div key={req.id} className="p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-sm text-gray-700">{req.title}</span>
+                    <span className="text-sm text-[#2d2d2d] tracking-wider">{req.title}</span>
                     <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full ${
+                      className={`text-[10px] px-2 py-0.5 rounded-sm tracking-wider ${
                         req.status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
+                          ? "bg-[#c4a265]/10 text-[#c4a265]"
                           : req.status === "approved"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-green-50 text-green-700/70"
+                          : "bg-red-50 text-red-600/70"
                       }`}
                     >
                       {req.status === "pending" ? "承認待ち" : req.status === "approved" ? "承認済み" : "却下"}
                     </span>
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-[10px] text-[#8a8a8a] tracking-wider">
                     {req.storeName} | {req.requestedByName} | ¥{req.amount.toLocaleString()}
                   </div>
                 </div>
@@ -210,31 +204,31 @@ export default function Dashboard() {
           </div>
 
           {/* 意見・提案 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <MessageSquare size={18} className="text-teal-500" />
+          <div className="bg-white border border-[#e0dbd2] rounded-sm">
+            <div className="p-4 border-b border-[#e0dbd2] flex items-center justify-between">
+              <h3 className="text-sm font-medium text-[#2d2d2d] flex items-center gap-2 tracking-wider">
+                <MessageSquare size={15} className="text-[#c4a265]" strokeWidth={1.5} />
                 意見・提案
               </h3>
-              <Link href="/employees" className="text-xs text-amber-600 hover:text-amber-700">
+              <Link href="/employees" className="text-[10px] text-[#c4a265] hover:text-[#b8860b] tracking-wider transition-colors duration-300">
                 すべて見る →
               </Link>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-[#eae6df]">
               {DEMO_SUGGESTIONS.map((s) => (
                 <div key={s.id} className="p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-sm text-gray-700">{s.title}</span>
+                    <span className="text-sm text-[#2d2d2d] tracking-wider">{s.title}</span>
                     <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full ${
-                        s.status === "new" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"
+                      className={`text-[10px] px-2 py-0.5 rounded-sm tracking-wider ${
+                        s.status === "new" ? "bg-blue-50 text-blue-600/70" : "bg-green-50 text-green-700/70"
                       }`}
                     >
                       {s.status === "new" ? "新規" : "対応済み"}
                     </span>
                   </div>
-                  <div className="text-xs text-gray-500 line-clamp-1">{s.content}</div>
-                  <div className="text-[10px] text-gray-400 mt-1">
+                  <div className="text-xs text-[#8a8a8a] line-clamp-1">{s.content}</div>
+                  <div className="text-[10px] text-[#8a8a8a]/60 mt-1 tracking-wider">
                     {s.employeeName} | {s.storeName}
                   </div>
                 </div>
@@ -243,31 +237,31 @@ export default function Dashboard() {
           </div>
 
           {/* 本日の予約 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <CalendarCheck size={18} className="text-green-500" />
+          <div className="bg-white border border-[#e0dbd2] rounded-sm">
+            <div className="p-4 border-b border-[#e0dbd2] flex items-center justify-between">
+              <h3 className="text-sm font-medium text-[#2d2d2d] flex items-center gap-2 tracking-wider">
+                <CalendarCheck size={15} className="text-[#c4a265]" strokeWidth={1.5} />
                 本日の予約状況
               </h3>
-              <Link href="/reservations" className="text-xs text-amber-600 hover:text-amber-700">
+              <Link href="/reservations" className="text-[10px] text-[#c4a265] hover:text-[#b8860b] tracking-wider transition-colors duration-300">
                 すべて見る →
               </Link>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-[#eae6df]">
               {todayReservations.map((r) => (
                 <div key={r.id} className="p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-sm text-gray-700">
+                    <span className="text-sm text-[#2d2d2d] tracking-wider">
                       {r.time} - {r.guestName}
                     </span>
-                    <span className="text-xs text-gray-400">{r.guestCount}名</span>
+                    <span className="text-[10px] text-[#8a8a8a] tracking-wider">{r.guestCount}名</span>
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-[10px] text-[#8a8a8a] tracking-wider">
                     {r.storeName}
                     {r.tableNumber && ` | ${r.tableNumber}`}
                   </div>
                   {r.specialRequest && (
-                    <div className="text-[10px] text-amber-600 mt-1">{r.specialRequest}</div>
+                    <div className="text-[10px] text-[#c4a265] mt-1 tracking-wider">{r.specialRequest}</div>
                   )}
                 </div>
               ))}

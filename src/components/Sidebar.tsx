@@ -28,9 +28,9 @@ const menuItems = [
   { href: "/finance", label: "資金繰り", icon: Wallet },
   { href: "/employees", label: "社員管理", icon: Users },
   { href: "/recruitment", label: "採用管理", icon: UserPlus },
-  { href: "/promotions", label: "プロモーション", icon: Image },
+  { href: "/promotions", label: "販促素材", icon: Image },
   { href: "/reservations", label: "予約状況", icon: CalendarCheck },
-  { href: "/chat", label: "チャット", icon: MessageCircle },
+  { href: "/chat", label: "連絡", icon: MessageCircle },
 ];
 
 interface SidebarProps {
@@ -46,41 +46,41 @@ export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full bg-[#1a1a2e] text-white transition-all duration-300 z-50 flex flex-col ${
+      className={`fixed left-0 top-0 h-full bg-[#1a1a1a] text-white transition-all duration-500 z-50 flex flex-col ${
         collapsed ? "w-16" : "w-60"
       }`}
     >
-      {/* ロゴ */}
-      <div className="p-4 border-b border-white/10">
+      {/* ロゴ - 金箔のような品格 */}
+      <div className="p-5 border-b border-[#c4a265]/20">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center font-bold text-sm text-[#1a1a2e] flex-shrink-0">
-            祥
+          <div className="w-9 h-9 rounded flex items-center justify-center flex-shrink-0 border border-[#c4a265]/40 bg-gradient-to-br from-[#c4a265]/10 to-transparent">
+            <span className="text-[#c4a265] font-semibold text-base tracking-widest">祥</span>
           </div>
           {!collapsed && (
             <div>
-              <div className="font-bold text-sm">祥瑞マネジメントOS</div>
-              <div className="text-[10px] text-white/50">Management Platform</div>
+              <div className="text-sm font-medium tracking-[0.15em] text-[#c4a265]">祥瑞</div>
+              <div className="text-[9px] text-white/30 tracking-[0.2em] mt-0.5">MANAGEMENT OS</div>
             </div>
           )}
         </div>
       </div>
 
       {/* メニュー */}
-      <nav className="flex-1 py-2 overflow-y-auto">
+      <nav className="flex-1 py-4 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg transition-all text-sm ${
+              className={`flex items-center gap-3 px-4 py-2.5 mx-2 rounded transition-all duration-300 text-[13px] tracking-wider ${
                 isActive
-                  ? "bg-amber-500/20 text-amber-400"
-                  : "text-white/60 hover:text-white hover:bg-white/5"
+                  ? "bg-[#c4a265]/10 text-[#c4a265] border-l-2 border-[#c4a265]"
+                  : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
               }`}
               title={collapsed ? item.label : undefined}
             >
-              <item.icon size={18} className="flex-shrink-0" />
+              <item.icon size={16} className="flex-shrink-0" strokeWidth={1.5} />
               {!collapsed && <span>{item.label}</span>}
             </Link>
           );
@@ -88,11 +88,11 @@ export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       </nav>
 
       {/* ユーザー情報 */}
-      <div className="border-t border-white/10 p-3">
+      <div className="border-t border-[#c4a265]/10 p-3">
         {!collapsed && (
-          <div className="mb-2 px-2">
-            <div className="text-sm font-medium">{user.name}</div>
-            <div className="text-[11px] text-white/50">{ROLE_LABELS[user.role]}</div>
+          <div className="mb-3 px-2">
+            <div className="text-xs font-medium text-white/70 tracking-wider">{user.name}</div>
+            <div className="text-[10px] text-white/30 tracking-wider mt-0.5">{ROLE_LABELS[user.role]}</div>
           </div>
         )}
         <div className="flex items-center justify-between">
@@ -101,17 +101,17 @@ export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               logout();
               window.location.href = "/login";
             }}
-            className="flex items-center gap-2 px-2 py-1.5 text-white/50 hover:text-red-400 transition-colors text-sm rounded"
+            className="flex items-center gap-2 px-2 py-1.5 text-white/30 hover:text-[#c4a265]/70 transition-colors duration-300 text-xs rounded tracking-wider"
             title="ログアウト"
           >
-            <LogOut size={16} />
-            {!collapsed && <span>ログアウト</span>}
+            <LogOut size={14} strokeWidth={1.5} />
+            {!collapsed && <span>退出</span>}
           </button>
           <button
             onClick={onToggleCollapse}
-            className="p-1.5 text-white/50 hover:text-white transition-colors rounded"
+            className="p-1.5 text-white/20 hover:text-white/50 transition-colors duration-300 rounded"
           >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {collapsed ? <ChevronRight size={14} strokeWidth={1.5} /> : <ChevronLeft size={14} strokeWidth={1.5} />}
           </button>
         </div>
       </div>

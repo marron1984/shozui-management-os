@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
-import { getCurrentUser, DEMO_STORES } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { canViewMonthlyReports } from "@/lib/auth";
 import { DEMO_MONTHLY_REPORTS } from "@/lib/demo-data";
 import { User } from "@/types";
-import { BarChart3, Store, TrendingUp, TrendingDown, FileDown, Lock } from "lucide-react";
+import { Store, FileDown, Lock } from "lucide-react";
 
 export default function MonthlyReportsPage() {
   const router = useRouter();
@@ -25,12 +25,12 @@ export default function MonthlyReportsPage() {
 
   if (!canViewMonthlyReports(user.role)) {
     return (
-      <div>
+      <div className="bg-[#fafaf7] min-h-screen">
         <Header title="月次報告" />
-        <div className="p-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-            <Lock size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500 font-medium">この機能は執行役員以上のみ閲覧可能です</p>
+        <div className="p-8">
+          <div className="bg-white border border-[#e0dbd2] rounded-sm p-12 text-center">
+            <Lock size={36} className="mx-auto text-[#e0dbd2] mb-3" strokeWidth={1} />
+            <p className="text-xs text-[#8a8a8a] tracking-wider">この機能は執行役員以上のみ閲覧可能です</p>
           </div>
         </div>
       </div>
@@ -47,16 +47,16 @@ export default function MonthlyReportsPage() {
   const totalCustomers = reports.reduce((s, r) => s + r.customerCount, 0);
 
   return (
-    <div>
+    <div className="bg-[#fafaf7] min-h-screen">
       <Header title="月次報告" />
-      <div className="p-6">
+      <div className="p-8">
         {/* 月選択 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 mb-6">
           <div className="flex items-center gap-4">
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700"
+              className="text-xs border border-[#e0dbd2] rounded-sm px-3 py-1.5 text-[#2d2d2d] bg-[#fafaf7] focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
             >
               <option value={2026}>2026年</option>
               <option value={2025}>2025年</option>
@@ -66,10 +66,10 @@ export default function MonthlyReportsPage() {
                 <button
                   key={m}
                   onClick={() => setSelectedMonth(m)}
-                  className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
+                  className={`px-3 py-1.5 text-[11px] rounded-sm transition-all duration-300 tracking-wider ${
                     selectedMonth === m
-                      ? "bg-amber-500 text-white"
-                      : "text-gray-500 hover:bg-gray-100"
+                      ? "bg-[#c4a265] text-white"
+                      : "text-[#8a8a8a] hover:bg-[#f5f3ee]"
                   }`}
                 >
                   {m}月
@@ -80,69 +80,69 @@ export default function MonthlyReportsPage() {
         </div>
 
         {/* 全店合計 */}
-        <div className="bg-gradient-to-r from-[#1a1a2e] to-[#16213e] rounded-xl p-6 mb-6 text-white">
-          <h3 className="text-sm text-white/60 mb-4">
+        <div className="bg-[#1a1a1a] rounded-sm p-6 mb-6">
+          <h3 className="text-[11px] text-white/40 mb-5 tracking-[0.2em]">
             {selectedYear}年{selectedMonth}月 全店舗合計
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
-              <div className="text-2xl font-bold">¥{(totalRevenue / 10000).toFixed(0)}万</div>
-              <div className="text-xs text-white/50 mt-1">売上</div>
+              <div className="text-2xl font-light text-[#c4a265] tracking-wider">¥{(totalRevenue / 10000).toFixed(0)}万</div>
+              <div className="text-[10px] text-white/30 mt-1 tracking-[0.15em]">売上</div>
             </div>
             <div>
-              <div className="text-2xl font-bold">¥{(totalExpenses / 10000).toFixed(0)}万</div>
-              <div className="text-xs text-white/50 mt-1">経費</div>
+              <div className="text-2xl font-light text-white/70 tracking-wider">¥{(totalExpenses / 10000).toFixed(0)}万</div>
+              <div className="text-[10px] text-white/30 mt-1 tracking-[0.15em]">経費</div>
             </div>
             <div>
-              <div className={`text-2xl font-bold ${totalProfit > 0 ? "text-green-400" : "text-red-400"}`}>
+              <div className={`text-2xl font-light tracking-wider ${totalProfit > 0 ? "text-green-400/80" : "text-red-400/80"}`}>
                 ¥{(totalProfit / 10000).toFixed(0)}万
               </div>
-              <div className="text-xs text-white/50 mt-1">利益</div>
+              <div className="text-[10px] text-white/30 mt-1 tracking-[0.15em]">利益</div>
             </div>
             <div>
-              <div className="text-2xl font-bold">{totalCustomers.toLocaleString()}</div>
-              <div className="text-xs text-white/50 mt-1">来客数</div>
+              <div className="text-2xl font-light text-white/70 tracking-wider">{totalCustomers.toLocaleString()}</div>
+              <div className="text-[10px] text-white/30 mt-1 tracking-[0.15em]">来客数</div>
             </div>
           </div>
         </div>
 
         {/* 各店舗レポート */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {reports.map((report) => (
-            <div key={report.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div key={report.id} className="bg-white border border-[#e0dbd2] rounded-sm p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Store size={16} className="text-amber-500" />
-                  <h4 className="font-bold text-gray-800">{report.storeName}</h4>
+                  <Store size={14} className="text-[#c4a265]" strokeWidth={1.5} />
+                  <h4 className="text-sm text-[#2d2d2d] tracking-wider">{report.storeName}</h4>
                 </div>
-                <button className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
-                  <FileDown size={12} />
+                <button className="text-[10px] text-[#8a8a8a] hover:text-[#c4a265] flex items-center gap-1 transition-colors duration-300 tracking-wider">
+                  <FileDown size={11} strokeWidth={1.5} />
                   PDF
                 </button>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <div className="text-lg font-bold text-blue-700">¥{(report.revenue / 10000).toFixed(0)}万</div>
-                  <div className="text-[10px] text-blue-500">売上</div>
+                <div className="bg-[#fafaf7] border border-[#eae6df] rounded-sm p-3">
+                  <div className="text-lg font-light text-[#2d2d2d] tracking-wider">¥{(report.revenue / 10000).toFixed(0)}万</div>
+                  <div className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">売上</div>
                 </div>
-                <div className="bg-green-50 rounded-lg p-3">
-                  <div className={`text-lg font-bold ${report.profit > 0 ? "text-green-700" : "text-red-700"}`}>
+                <div className="bg-[#fafaf7] border border-[#eae6df] rounded-sm p-3">
+                  <div className={`text-lg font-light tracking-wider ${report.profit > 0 ? "text-green-700/70" : "text-red-700/70"}`}>
                     ¥{(report.profit / 10000).toFixed(0)}万
                   </div>
-                  <div className="text-[10px] text-green-500">利益</div>
+                  <div className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">利益</div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-gray-400">
+              <div className="flex items-center justify-between text-[10px] text-[#8a8a8a] tracking-wider">
                 <span>来客数: {report.customerCount.toLocaleString()}組</span>
                 <span>利益率: {((report.profit / report.revenue) * 100).toFixed(1)}%</span>
               </div>
 
               {report.snsReport && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="text-[10px] font-bold text-purple-600 mb-1">SNSレポート</div>
-                  <p className="text-xs text-gray-500">{report.snsReport}</p>
+                <div className="mt-4 pt-4 border-t border-[#eae6df]">
+                  <div className="text-[10px] text-[#c4a265] mb-1 tracking-[0.15em]">SNSレポート</div>
+                  <p className="text-xs text-[#8a8a8a] leading-relaxed">{report.snsReport}</p>
                 </div>
               )}
             </div>

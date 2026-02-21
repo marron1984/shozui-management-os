@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { getCurrentUser, DEMO_STORES } from "@/lib/auth";
 import { DEMO_DAILY_REPORTS } from "@/lib/demo-data";
-import { User, DailyReport } from "@/types";
+import { User } from "@/types";
 import { FileText, Store, Camera, Filter, Calendar, ChevronDown, FolderOpen } from "lucide-react";
 
 export default function DailyReportsPage() {
@@ -29,26 +29,23 @@ export default function DailyReportsPage() {
     return true;
   });
 
-  // フォルダ構造の計算
-  const folders = Array.from(new Set(DEMO_DAILY_REPORTS.map((r) => r.folder)));
-
   return (
-    <div>
+    <div className="bg-[#fafaf7] min-h-screen">
       <Header title="日報管理" />
-      <div className="p-6">
+      <div className="p-8">
         {/* フィルター */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 mb-6">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <Filter size={16} className="text-gray-400" />
-              <span className="text-sm font-medium text-gray-600">フィルター:</span>
+              <Filter size={14} className="text-[#8a8a8a]" strokeWidth={1.5} />
+              <span className="text-[11px] text-[#8a8a8a] tracking-[0.15em]">フィルター</span>
             </div>
             <div className="flex items-center gap-2">
-              <Store size={14} className="text-gray-400" />
+              <Store size={13} className="text-[#8a8a8a]" strokeWidth={1.5} />
               <select
                 value={selectedStore}
                 onChange={(e) => setSelectedStore(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="text-xs border border-[#e0dbd2] rounded-sm px-3 py-1.5 text-[#2d2d2d] bg-[#fafaf7] focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
               >
                 <option value="all">全店舗</option>
                 {DEMO_STORES.map((s) => (
@@ -57,12 +54,12 @@ export default function DailyReportsPage() {
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar size={14} className="text-gray-400" />
+              <Calendar size={13} className="text-[#8a8a8a]" strokeWidth={1.5} />
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="text-xs border border-[#e0dbd2] rounded-sm px-3 py-1.5 text-[#2d2d2d] bg-[#fafaf7] focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
               />
             </div>
           </div>
@@ -70,24 +67,24 @@ export default function DailyReportsPage() {
 
         {/* フォルダツリー */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-            <h3 className="font-bold text-sm text-gray-700 mb-3 flex items-center gap-2">
-              <FolderOpen size={16} className="text-amber-500" />
+          <div className="bg-white border border-[#e0dbd2] rounded-sm p-4">
+            <h3 className="text-[11px] text-[#2d2d2d] mb-3 flex items-center gap-2 tracking-[0.15em]">
+              <FolderOpen size={14} className="text-[#c4a265]" strokeWidth={1.5} />
               フォルダ
             </h3>
-            <div className="space-y-1 text-sm">
-              <div className="font-medium text-gray-600 pl-2">2026年</div>
+            <div className="space-y-1 text-xs">
+              <div className="text-[#2d2d2d] pl-2 tracking-wider">2026年</div>
               <div className="pl-6 space-y-0.5">
-                <div className="text-gray-500 font-medium">2月</div>
+                <div className="text-[#8a8a8a] tracking-wider">2月</div>
                 <div className="pl-4 space-y-0.5">
                   {["22", "21", "20", "19", "18"].map((day) => (
                     <button
                       key={day}
                       onClick={() => setSelectedDate(`2026-02-${day}`)}
-                      className={`block w-full text-left px-2 py-1 rounded text-xs ${
+                      className={`block w-full text-left px-2 py-1 rounded-sm text-[11px] tracking-wider transition-colors duration-300 ${
                         selectedDate === `2026-02-${day}`
-                          ? "bg-amber-100 text-amber-700"
-                          : "text-gray-400 hover:bg-gray-50"
+                          ? "bg-[#c4a265]/10 text-[#c4a265]"
+                          : "text-[#8a8a8a]/60 hover:bg-[#f5f3ee]"
                       }`}
                     >
                       {day}日
@@ -101,65 +98,65 @@ export default function DailyReportsPage() {
           {/* 日報一覧 */}
           <div className="lg:col-span-3 space-y-4">
             {filteredReports.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-                <FileText size={40} className="mx-auto text-gray-300 mb-3" />
-                <p className="text-gray-400">該当する日報がありません</p>
+              <div className="bg-white border border-[#e0dbd2] rounded-sm p-12 text-center">
+                <FileText size={36} className="mx-auto text-[#e0dbd2] mb-3" strokeWidth={1} />
+                <p className="text-xs text-[#8a8a8a] tracking-wider">該当する日報がありません</p>
               </div>
             ) : (
               filteredReports.map((report) => (
-                <div key={report.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div key={report.id} className="bg-white border border-[#e0dbd2] rounded-sm overflow-hidden">
                   <button
                     onClick={() => setExpandedReport(expandedReport === report.id ? null : report.id)}
-                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    className="w-full p-4 flex items-center justify-between hover:bg-[#f5f3ee] transition-colors duration-300"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <Store size={18} className="text-blue-600" />
+                      <div className="w-9 h-9 rounded-sm bg-[#c4a265]/[0.08] flex items-center justify-center">
+                        <Store size={15} className="text-[#c4a265]" strokeWidth={1.5} />
                       </div>
                       <div className="text-left">
-                        <div className="font-medium text-sm text-gray-800">{report.storeName}</div>
-                        <div className="text-xs text-gray-400">{report.date} | 提出: {new Date(report.submittedAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</div>
+                        <div className="text-sm text-[#2d2d2d] tracking-wider">{report.storeName}</div>
+                        <div className="text-[10px] text-[#8a8a8a] tracking-wider">{report.date} | 提出: {new Date(report.submittedAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {(report.hallPhotos.length + report.kitchenPhotos.length) > 0 && (
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <Camera size={12} /> {report.hallPhotos.length + report.kitchenPhotos.length}
+                        <span className="text-[10px] text-[#8a8a8a] flex items-center gap-1 tracking-wider">
+                          <Camera size={11} strokeWidth={1.5} /> {report.hallPhotos.length + report.kitchenPhotos.length}
                         </span>
                       )}
-                      <ChevronDown size={16} className={`text-gray-400 transition-transform ${expandedReport === report.id ? "rotate-180" : ""}`} />
+                      <ChevronDown size={14} className={`text-[#8a8a8a] transition-transform duration-300 ${expandedReport === report.id ? "rotate-180" : ""}`} strokeWidth={1.5} />
                     </div>
                   </button>
 
                   {expandedReport === report.id && (
-                    <div className="border-t border-gray-100 p-4 space-y-4">
+                    <div className="border-t border-[#e0dbd2] p-5 space-y-5">
                       <div>
-                        <h4 className="text-xs font-bold text-blue-600 mb-2 uppercase tracking-wider">ホール側日報</h4>
-                        <p className="text-sm text-gray-600 leading-relaxed">{report.hallReport}</p>
+                        <h4 className="text-[10px] text-[#c4a265] mb-2 tracking-[0.2em]">ホール側日報</h4>
+                        <p className="text-xs text-[#4a4a4a] leading-relaxed">{report.hallReport}</p>
                         {report.hallPhotos.length > 0 && (
-                          <div className="flex gap-2 mt-2">
+                          <div className="flex gap-2 mt-3">
                             {report.hallPhotos.map((_, i) => (
-                              <div key={i} className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <Camera size={16} className="text-gray-400" />
+                              <div key={i} className="w-20 h-20 bg-[#f5f3ee] rounded-sm flex items-center justify-center border border-[#e0dbd2]">
+                                <Camera size={14} className="text-[#8a8a8a]/40" strokeWidth={1.5} />
                               </div>
                             ))}
                           </div>
                         )}
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-green-600 mb-2 uppercase tracking-wider">厨房側日報</h4>
-                        <p className="text-sm text-gray-600 leading-relaxed">{report.kitchenReport}</p>
+                        <h4 className="text-[10px] text-[#c4a265] mb-2 tracking-[0.2em]">厨房側日報</h4>
+                        <p className="text-xs text-[#4a4a4a] leading-relaxed">{report.kitchenReport}</p>
                         {report.kitchenPhotos.length > 0 && (
-                          <div className="flex gap-2 mt-2">
+                          <div className="flex gap-2 mt-3">
                             {report.kitchenPhotos.map((_, i) => (
-                              <div key={i} className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <Camera size={16} className="text-gray-400" />
+                              <div key={i} className="w-20 h-20 bg-[#f5f3ee] rounded-sm flex items-center justify-center border border-[#e0dbd2]">
+                                <Camera size={14} className="text-[#8a8a8a]/40" strokeWidth={1.5} />
                               </div>
                             ))}
                           </div>
                         )}
                       </div>
-                      <div className="text-[10px] text-gray-400 pt-2 border-t border-gray-100">
+                      <div className="text-[10px] text-[#8a8a8a]/50 pt-3 border-t border-[#eae6df] tracking-wider">
                         保存先: /{report.folder}/
                       </div>
                     </div>

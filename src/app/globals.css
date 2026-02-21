@@ -1,26 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9fafb;
-  --foreground: #171717;
+  /* 高級和モダン カラーパレット */
+  --color-kuro: #1a1a1a;        /* 墨黒 */
+  --color-sumi: #2d2d2d;        /* 炭 */
+  --color-hai: #4a4a4a;         /* 灰 */
+  --color-gin: #8a8a8a;         /* 銀鼠 */
+  --color-kincha: #c4a265;      /* 金茶 */
+  --color-kin: #d4af37;         /* 金 */
+  --color-kohaku: #b8860b;      /* 琥珀 */
+  --color-shiro: #fafaf7;       /* 生成り白 */
+  --color-kinu: #f5f3ee;        /* 絹 */
+  --color-washi: #eae6df;       /* 和紙 */
+
+  --background: var(--color-kinu);
+  --foreground: var(--color-kuro);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-noto-serif-jp);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-family: var(--font-serif), "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  letter-spacing: 0.02em;
 }
 
-/* スクロールバーカスタマイズ */
+/* スクロールバー - 控えめなデザイン */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -28,12 +41,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
+  background: var(--color-washi);
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--color-gin);
 }
 
 /* line-clamp ユーティリティ */
@@ -49,4 +62,20 @@ body {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* 金色グラデーションテキスト */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #d4af37 0%, #f4d47c 50%, #c4a265 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 和紙テクスチャ背景 */
+.bg-washi {
+  background-color: var(--color-kinu);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(196, 162, 101, 0.03) 0%, transparent 50%);
 }
