@@ -11,6 +11,7 @@ import {
   DEMO_MONTHLY_REPORTS,
   DEMO_APPROVAL_REQUESTS,
   DEMO_SUGGESTIONS,
+  DEMO_NOTIFICATIONS,
 } from "@/lib/demo-data";
 import {
   FileText,
@@ -22,9 +23,24 @@ import {
   MessageSquare,
   RefreshCw,
   CloudOff,
+  Bell,
+  X,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
-import { User, Reservation } from "@/types";
+import { User, Reservation, Notification } from "@/types";
+
+// 通知タイプごとのアイコン色
+function getNotifColor(type: Notification["type"]) {
+  switch (type) {
+    case "approval": return "bg-[#c4a265]/15 text-[#c4a265]";
+    case "daily_report": return "bg-blue-50 text-blue-500";
+    case "suggestion": return "bg-purple-50 text-purple-500";
+    case "recruitment": return "bg-green-50 text-green-600";
+    case "chat": return "bg-orange-50 text-orange-500";
+    default: return "bg-[#eae6df] text-[#8a8a8a]";
+  }
+}
 
 export default function Dashboard() {
   const router = useRouter();
@@ -33,6 +49,8 @@ export default function Dashboard() {
   const [todayReservations, setTodayReservations] = useState<Reservation[]>([]);
   const [reservationsSyncing, setReservationsSyncing] = useState(false);
   const [reservationsSource, setReservationsSource] = useState<"mock" | "live" | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>(() => [...DEMO_NOTIFICATIONS]);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -126,6 +144,90 @@ export default function Dashboard() {
             })}
           </p>
         </div>
+
+        {/* ── 連絡アラート ── */}
+        {(() => {
+          const unread = notifications.filter(
+            (n) => !n.read && !dismissedIds.has(n.id)
+          );
+          if (unread.length === 0) return null;
+          return (
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-50" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-400" />
+                </span>
+                <h3 className="text-xs text-[#2d2d2d] tracking-wider font-medium">
+                  未読の連絡
+                </h3>
+                <span className="text-[10px] text-white bg-red-400 rounded-full px-1.5 py-0.5 leading-none">
+                  {unread.length}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {unread.map((n) => (
+                  <div
+                    key={n.id}
+                    className="bg-white border border-[#e0dbd2] rounded-sm p-3 lg:p-4 flex items-start gap-3 hover:border-[#c4a265]/30 transition-colors duration-300 group"
+                  >
+                    {/* アイコン */}
+                    <div
+                      className={`w-8 h-8 rounded-sm flex-shrink-0 flex items-center justify-center ${getNotifColor(n.type)}`}
+                    >
+                      <Bell size={14} strokeWidth={1.5} />
+                    </div>
+
+                    {/* 内容 */}
+                    <Link href={n.link} className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[10px] text-[#c4a265] tracking-[0.15em] font-medium">
+                          {n.title}
+                        </span>
+                        <span className="text-[9px] text-[#8a8a8a]/50 tracking-wider">
+                          {(() => {
+                            const d = new Date(n.createdAt);
+                            const now2 = new Date();
+                            const diffH = Math.floor(
+                              (now2.getTime() - d.getTime()) / 3600000
+                            );
+                            if (diffH < 1) return "たった今";
+                            if (diffH < 24) return `${diffH}時間前`;
+                            return `${Math.floor(diffH / 24)}日前`;
+                          })()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#2d2d2d] tracking-wider leading-relaxed truncate">
+                        {n.message}
+                      </p>
+                    </Link>
+
+                    {/* アクション */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Link
+                        href={n.link}
+                        className="text-[#c4a265] hover:text-[#b8860b] p-1 transition-colors duration-300 opacity-0 group-hover:opacity-100"
+                        title="詳細を見る"
+                      >
+                        <ChevronRight size={14} strokeWidth={1.5} />
+                      </Link>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDismissedIds((prev) => new Set([...prev, n.id]));
+                        }}
+                        className="text-[#e0dbd2] hover:text-red-400 p-1 transition-colors duration-300"
+                        title="閉じる"
+                      >
+                        <X size={13} strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* 統計カード */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 mb-6 lg:mb-8">
