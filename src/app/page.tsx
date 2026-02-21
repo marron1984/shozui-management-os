@@ -179,7 +179,17 @@ export default function Dashboard() {
                     </div>
 
                     {/* 内容 */}
-                    <Link href={n.link} className="flex-1 min-w-0">
+                    <Link
+                      href={n.link}
+                      className="flex-1 min-w-0"
+                      onClick={() => {
+                        setNotifications((prev) =>
+                          prev.map((notif) =>
+                            notif.id === n.id ? { ...notif, read: true } : notif
+                          )
+                        );
+                      }}
+                    >
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-[10px] text-[#c4a265] tracking-[0.15em] font-medium">
                           {n.title}
@@ -208,6 +218,13 @@ export default function Dashboard() {
                         href={n.link}
                         className="text-[#c4a265] hover:text-[#b8860b] p-1 transition-colors duration-300 opacity-0 group-hover:opacity-100"
                         title="詳細を見る"
+                        onClick={() => {
+                          setNotifications((prev) =>
+                            prev.map((notif) =>
+                              notif.id === n.id ? { ...notif, read: true } : notif
+                            )
+                          );
+                        }}
                       >
                         <ChevronRight size={14} strokeWidth={1.5} />
                       </Link>
