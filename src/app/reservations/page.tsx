@@ -190,6 +190,7 @@ export default function ReservationsPage() {
             <CalendarCheck size={18} className="mx-auto text-[#c4a265] mb-1" strokeWidth={1.5} />
             <div className="text-2xl font-light text-[#2d2d2d] tracking-wider">{filtered.length}</div>
             <div className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">予約組数</div>
+            <div className="text-[9px] text-[#c4a265]/70 mt-0.5 tracking-wider">{confirmedCount}件 確定</div>
           </div>
           <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 text-center">
             <Users size={18} className="mx-auto text-[#c4a265] mb-1" strokeWidth={1.5} />

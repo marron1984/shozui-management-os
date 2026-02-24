@@ -4,11 +4,11 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, DEMO_USERS } from "@/lib/auth";
 import { DEMO_CHANNELS, DEMO_MESSAGES } from "@/lib/demo-data";
 import { usePersistedState } from "@/lib/usePersistedState";
 import { User, ChatChannel, ChatMessage, ROLE_LABELS } from "@/types";
-import { MessageCircle, Send, Hash, Users, User as UserIcon, Paperclip, ChevronLeft } from "lucide-react";
+import { MessageCircle, Send, Hash, Users, User as UserIcon, Paperclip, ChevronLeft, Plus, X } from "lucide-react";
 
 export default function ChatPage() {
   const router = useRouter();
@@ -17,6 +17,11 @@ export default function ChatPage() {
   const [selectedChannel, setSelectedChannel] = useState<ChatChannel | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = usePersistedState("chat_messages", DEMO_MESSAGES);
+  const [channels, setChannels] = usePersistedState("chat_channels", DEMO_CHANNELS);
+  const [showNewChannel, setShowNewChannel] = useState(false);
+  const [showNewDM, setShowNewDM] = useState(false);
+  const [newChannelName, setNewChannelName] = useState("");
+  const [newChannelMembers, setNewChannelMembers] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -39,17 +44,16 @@ export default function ChatPage() {
     if (!u) { router.push("/login"); return; }
     setUser(u);
     // 自動的に最初のチャンネルを選択
-    const userChannels = DEMO_CHANNELS.filter((ch) => ch.members.includes(u.id));
-    if (userChannels.length > 0) {
-      setSelectedChannel(userChannels[0]);
-      // 最初のチャンネルのメッセージを既読にする
-      markChannelRead(userChannels[0].id, u.id);
+    const userChs = DEMO_CHANNELS.filter((ch) => ch.members.includes(u.id));
+    if (userChs.length > 0) {
+      setSelectedChannel(userChs[0]);
+      markChannelRead(userChs[0].id, u.id);
     }
   }, [router, markChannelRead]);
 
   if (!user) return null;
 
-  const userChannels = DEMO_CHANNELS.filter((ch) => ch.members.includes(user.id));
+  const userChannels = channels.filter((ch) => ch.members.includes(user.id));
   const channelMessages = selectedChannel
     ? messages.filter((m) => m.channelId === selectedChannel.id)
     : [];
@@ -67,8 +71,62 @@ export default function ChatPage() {
       createdAt: new Date().toISOString(),
     };
     setMessages([...messages, msg]);
+    // チャンネルのlastMessageを更新
+    setChannels(channels.map((ch) =>
+      ch.id === selectedChannel.id ? { ...ch, lastMessage: newMessage } : ch
+    ));
     setNewMessage("");
     setTimeout(scrollToBottom, 100);
+  };
+
+  const handleCreateChannel = () => {
+    if (!newChannelName.trim()) return;
+    const members = [...new Set([user.id, ...newChannelMembers])];
+    const newCh: ChatChannel = {
+      id: `ch${Date.now()}`,
+      name: newChannelName.trim(),
+      type: "management",
+      members,
+      lastMessage: "",
+    };
+    setChannels([...channels, newCh]);
+    setSelectedChannel(newCh);
+    setShowNewChannel(false);
+    setNewChannelName("");
+    setNewChannelMembers([]);
+  };
+
+  const handleStartDM = (targetUser: User) => {
+    // 既存のDMチャンネルを探す
+    const existing = channels.find(
+      (ch) => ch.type === "direct" &&
+        ch.members.length === 2 &&
+        ch.members.includes(user.id) &&
+        ch.members.includes(targetUser.id)
+    );
+    if (existing) {
+      setSelectedChannel(existing);
+      markChannelRead(existing.id, user.id);
+    } else {
+      const newCh: ChatChannel = {
+        id: `dm${Date.now()}`,
+        name: `${targetUser.name}`,
+        type: "direct",
+        members: [user.id, targetUser.id],
+        lastMessage: "",
+      };
+      setChannels([...channels, newCh]);
+      setSelectedChannel(newCh);
+    }
+    setShowNewDM(false);
+  };
+
+  const toggleMember = (userId: string) => {
+    setNewChannelMembers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
   };
 
   const channelIcon = (type: string) => {
@@ -89,8 +147,24 @@ export default function ChatPage() {
           <div className="flex h-full relative">
             {/* チャンネルリスト */}
             <div className={`${selectedChannel ? "hidden lg:flex" : "flex"} w-full lg:w-64 border-r border-[#e0dbd2] flex-col bg-[#fafaf7]`}>
-              <div className="p-3 border-b border-[#e0dbd2]">
+              <div className="p-3 border-b border-[#e0dbd2] flex items-center justify-between">
                 <h3 className="text-[11px] text-[#2d2d2d] tracking-[0.15em]">チャンネル</h3>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setShowNewDM(true)}
+                    className="p-1 text-[#8a8a8a] hover:text-[#c4a265] transition-colors duration-300"
+                    title="ダイレクトメッセージ"
+                  >
+                    <UserIcon size={13} strokeWidth={1.5} />
+                  </button>
+                  <button
+                    onClick={() => setShowNewChannel(true)}
+                    className="p-1 text-[#8a8a8a] hover:text-[#c4a265] transition-colors duration-300"
+                    title="チャンネル作成"
+                  >
+                    <Plus size={14} strokeWidth={1.5} />
+                  </button>
+                </div>
               </div>
               <div className="flex-1 overflow-y-auto">
                 {userChannels.map((ch) => {
@@ -233,6 +307,114 @@ export default function ChatPage() {
             </div>
           </div>
         </div>
+
+        {/* チャンネル作成モーダル */}
+        {showNewChannel && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 lg:p-4" onClick={() => setShowNewChannel(false)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-md w-full max-h-[85vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-sm font-medium text-[#2d2d2d] tracking-wider">チャンネルを作成</h3>
+                  <button onClick={() => setShowNewChannel(false)} className="text-[#8a8a8a] hover:text-[#2d2d2d] transition-colors duration-300">
+                    <X size={16} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">チャンネル名 <span className="text-red-500/70">*</span></label>
+                    <input
+                      type="text"
+                      value={newChannelName}
+                      onChange={(e) => setNewChannelName(e.target.value)}
+                      placeholder="例: 新メニュー企画"
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">メンバーを追加</label>
+                    <div className="mt-2 space-y-1 max-h-48 overflow-y-auto">
+                      {DEMO_USERS.filter((u) => u.id !== user.id).map((u) => (
+                        <button
+                          key={u.id}
+                          onClick={() => toggleMember(u.id)}
+                          className={`w-full flex items-center gap-3 p-2 rounded-sm text-left transition-colors duration-300 ${
+                            newChannelMembers.includes(u.id)
+                              ? "bg-[#c4a265]/[0.06] border border-[#c4a265]/30"
+                              : "bg-white border border-[#e0dbd2] hover:border-[#c4a265]/20"
+                          }`}
+                        >
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-medium ${
+                            newChannelMembers.includes(u.id)
+                              ? "bg-[#1a1a1a] text-[#c4a265] border border-[#c4a265]/30"
+                              : "bg-[#f5f3ee] text-[#8a8a8a] border border-[#e0dbd2]"
+                          }`}>
+                            {u.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="text-xs text-[#2d2d2d] tracking-wider">{u.name}</div>
+                            <div className="text-[9px] text-[#8a8a8a] tracking-wider">{ROLE_LABELS[u.role]}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={handleCreateChannel}
+                      disabled={!newChannelName.trim()}
+                      className="flex-1 py-2.5 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] disabled:opacity-30 transition-colors duration-300 tracking-wider"
+                    >
+                      作成する
+                    </button>
+                    <button
+                      onClick={() => setShowNewChannel(false)}
+                      className="px-6 py-2.5 border border-[#e0dbd2] text-[#8a8a8a] rounded-sm text-[11px] hover:border-[#c4a265]/30 transition-colors duration-300 tracking-wider"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* DM作成モーダル */}
+        {showNewDM && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 lg:p-4" onClick={() => setShowNewDM(false)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-sm w-full max-h-[85vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-sm font-medium text-[#2d2d2d] tracking-wider">ダイレクトメッセージ</h3>
+                  <button onClick={() => setShowNewDM(false)} className="text-[#8a8a8a] hover:text-[#2d2d2d] transition-colors duration-300">
+                    <X size={16} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  {DEMO_USERS.filter((u) => u.id !== user.id).map((u) => (
+                    <button
+                      key={u.id}
+                      onClick={() => handleStartDM(u)}
+                      className="w-full flex items-center gap-3 p-3 bg-white border border-[#e0dbd2] rounded-sm hover:border-[#c4a265]/30 transition-colors duration-300"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[#1a1a1a] text-[#c4a265] border border-[#c4a265]/30 flex items-center justify-center text-[11px] font-medium">
+                        {u.name.charAt(0)}
+                      </div>
+                      <div className="text-left">
+                        <div className="text-xs text-[#2d2d2d] tracking-wider">{u.name}</div>
+                        <div className="text-[9px] text-[#8a8a8a] tracking-wider">{ROLE_LABELS[u.role]} | {u.position}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
