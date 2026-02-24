@@ -7,7 +7,7 @@ import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, canViewRecruitment } from "@/lib/auth";
 import { DEMO_APPLICATIONS } from "@/lib/demo-data";
 import { User, JobApplication } from "@/types";
-import { UserPlus, FileText, CheckCircle, XCircle, Lock, User as UserIcon } from "lucide-react";
+import { UserPlus, FileText, CheckCircle, XCircle, Lock, User as UserIcon, ArrowRight } from "lucide-react";
 
 export default function RecruitmentPage() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function RecruitmentPage() {
   const [user, setUser] = useState<User | null>(null);
   const [applications, setApplications] = useState(DEMO_APPLICATIONS);
   const [selected, setSelected] = useState<JobApplication | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "interviewing" | "accepted" | "rejected">("all");
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -59,6 +60,18 @@ export default function RecruitmentPage() {
     setSelected(null);
   };
 
+  const handleMoveToInterview = (id: string) => {
+    setApplications(
+      applications.map((a) =>
+        a.id === id ? { ...a, status: "interviewing" as const } : a
+      )
+    );
+  };
+
+  const filteredApplications = statusFilter === "all"
+    ? applications
+    : applications.filter((a) => a.status === statusFilter);
+
   return (
     <div className="bg-[#fafaf7] min-h-screen">
       <Header title="採用管理" onMobileMenuOpen={openMobileMenu} />
@@ -78,10 +91,28 @@ export default function RecruitmentPage() {
           ))}
         </div>
 
+        {/* ステータスフィルター */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {(["all", "pending", "interviewing", "accepted", "rejected"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setStatusFilter(f)}
+              className={`px-3 lg:px-4 py-2 text-[11px] rounded-sm transition-all duration-300 tracking-wider ${
+                statusFilter === f ? "bg-[#c4a265] text-white" : "bg-white text-[#8a8a8a] border border-[#e0dbd2] hover:border-[#c4a265]/30"
+              }`}
+            >
+              {f === "all" ? "すべて" : statusLabel(f)}
+              <span className="ml-1 opacity-60">
+                ({f === "all" ? applications.length : applications.filter((a) => a.status === f).length})
+              </span>
+            </button>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* 応募一覧 */}
           <div className="lg:col-span-2 space-y-3">
-            {applications.map((app) => (
+            {filteredApplications.map((app) => (
               <button
                 key={app.id}
                 onClick={() => setSelected(app)}
@@ -163,7 +194,38 @@ export default function RecruitmentPage() {
                   )}
                 </div>
 
-                {(selected.status === "pending" || selected.status === "interviewing") && (
+                {selected.status === "pending" && (
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => {
+                        handleMoveToInterview(selected.id);
+                        setSelected({ ...selected, status: "interviewing" });
+                      }}
+                      className="w-full py-2.5 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 flex items-center justify-center gap-1 tracking-wider"
+                    >
+                      <ArrowRight size={13} strokeWidth={1.5} />
+                      面接へ進める
+                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleDecision(selected.id, true)}
+                        className="flex-1 py-2.5 bg-[#2d2d2d] text-white rounded-sm text-[11px] hover:bg-[#1a1a1a] transition-colors duration-300 flex items-center justify-center gap-1 tracking-wider"
+                      >
+                        <CheckCircle size={13} strokeWidth={1.5} />
+                        採用
+                      </button>
+                      <button
+                        onClick={() => handleDecision(selected.id, false)}
+                        className="flex-1 py-2.5 border border-[#e0dbd2] text-[#8a8a8a] rounded-sm text-[11px] hover:border-red-300 hover:text-red-600/70 transition-colors duration-300 flex items-center justify-center gap-1 tracking-wider"
+                      >
+                        <XCircle size={13} strokeWidth={1.5} />
+                        不採用
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {selected.status === "interviewing" && (
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleDecision(selected.id, true)}

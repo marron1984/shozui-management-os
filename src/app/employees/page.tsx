@@ -7,7 +7,8 @@ import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, DEMO_USERS, DEMO_STORES, canViewSalary } from "@/lib/auth";
 import { DEMO_SUGGESTIONS } from "@/lib/demo-data";
 import { User, ROLE_LABELS } from "@/types";
-import { Users, UserCircle, MessageSquare, Send, Eye, EyeOff, MapPin } from "lucide-react";
+import { Users, UserCircle, MessageSquare, Send, Eye, EyeOff, MapPin, Plus, X } from "lucide-react";
+import { Suggestion } from "@/types";
 import { canRespondToSuggestions } from "@/lib/auth";
 
 export default function EmployeesPage() {
@@ -18,6 +19,8 @@ export default function EmployeesPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
   const [suggestions, setSuggestions] = useState(DEMO_SUGGESTIONS);
   const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
+  const [showNewSuggestion, setShowNewSuggestion] = useState(false);
+  const [newSuggestion, setNewSuggestion] = useState({ title: "", content: "" });
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -28,6 +31,25 @@ export default function EmployeesPage() {
   if (!user) return null;
 
   const showSalary = canViewSalary(user.role);
+
+  const handleNewSuggestion = () => {
+    if (!newSuggestion.title.trim() || !newSuggestion.content.trim()) return;
+    const storeName = user.storeId === "all" ? "全店舗" : (DEMO_STORES.find((s) => s.id === user.storeId)?.name || "");
+    const newItem: Suggestion = {
+      id: `sg${Date.now()}`,
+      employeeId: user.id,
+      employeeName: user.name,
+      storeId: user.storeId,
+      storeName,
+      title: newSuggestion.title.trim(),
+      content: newSuggestion.content.trim(),
+      status: "new",
+      createdAt: new Date().toISOString(),
+    };
+    setSuggestions([newItem, ...suggestions]);
+    setShowNewSuggestion(false);
+    setNewSuggestion({ title: "", content: "" });
+  };
 
   const getStoreName = (storeId: string) => {
     if (storeId === "all") return "全店舗";
@@ -64,6 +86,18 @@ export default function EmployeesPage() {
             )}
           </button>
         </div>
+
+        {activeTab === "suggestions" && (
+          <div className="flex justify-end mb-4 -mt-2">
+            <button
+              onClick={() => setShowNewSuggestion(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 tracking-wider"
+            >
+              <Plus size={14} strokeWidth={1.5} />
+              意見・提案を投稿
+            </button>
+          </div>
+        )}
 
         {activeTab === "roster" ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -235,6 +269,66 @@ export default function EmployeesPage() {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* 新規投稿モーダル */}
+        {showNewSuggestion && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 lg:p-4" onClick={() => setShowNewSuggestion(false)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-lg w-full max-h-[85vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-sm font-medium text-[#2d2d2d] tracking-wider">意見・提案を投稿</h3>
+                  <button onClick={() => setShowNewSuggestion(false)} className="text-[#8a8a8a] hover:text-[#2d2d2d] transition-colors duration-300">
+                    <X size={16} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="text-[10px] text-[#8a8a8a] tracking-wider bg-white border border-[#e0dbd2] rounded-sm p-3">
+                    投稿者: {user.name} | {getStoreName(user.storeId)}
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">タイトル <span className="text-red-500/70">*</span></label>
+                    <input
+                      type="text"
+                      value={newSuggestion.title}
+                      onChange={(e) => setNewSuggestion({ ...newSuggestion, title: e.target.value })}
+                      placeholder="例: 新メニュー開発の提案"
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">内容 <span className="text-red-500/70">*</span></label>
+                    <textarea
+                      value={newSuggestion.content}
+                      onChange={(e) => setNewSuggestion({ ...newSuggestion, content: e.target.value })}
+                      placeholder="意見や提案の詳細を記入してください..."
+                      rows={5}
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider resize-none"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={handleNewSuggestion}
+                      disabled={!newSuggestion.title.trim() || !newSuggestion.content.trim()}
+                      className="flex-1 py-2.5 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] disabled:opacity-30 transition-colors duration-300 tracking-wider"
+                    >
+                      投稿する
+                    </button>
+                    <button
+                      onClick={() => setShowNewSuggestion(false)}
+                      className="px-6 py-2.5 border border-[#e0dbd2] text-[#8a8a8a] rounded-sm text-[11px] hover:border-[#c4a265]/30 transition-colors duration-300 tracking-wider"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

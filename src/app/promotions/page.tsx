@@ -7,7 +7,8 @@ import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_PROMOTIONS } from "@/lib/demo-data";
 import { User, PromotionMaterial } from "@/types";
-import { Camera, Video, FileText, FolderOpen, Plus } from "lucide-react";
+import { Camera, Video, FileText, FolderOpen, Plus, X } from "lucide-react";
+import { DEMO_STORES } from "@/lib/auth";
 
 const typeLabels: Record<string, string> = {
   menu_meeting: "メニュー会議",
@@ -31,6 +32,16 @@ export default function PromotionsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [filterType, setFilterType] = useState("all");
   const [selectedItem, setSelectedItem] = useState<PromotionMaterial | null>(null);
+  const [promotions, setPromotions] = useState(DEMO_PROMOTIONS);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [newForm, setNewForm] = useState({
+    type: "menu_meeting" as PromotionMaterial["type"],
+    title: "",
+    description: "",
+    storeId: "s1",
+    year: 2026,
+    month: new Date().getMonth() + 1,
+  });
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -41,8 +52,31 @@ export default function PromotionsPage() {
   if (!user) return null;
 
   const filtered = filterType === "all"
-    ? DEMO_PROMOTIONS
-    : DEMO_PROMOTIONS.filter((p) => p.type === filterType);
+    ? promotions
+    : promotions.filter((p) => p.type === filterType);
+
+  const handleNewPromotion = () => {
+    if (!newForm.title.trim() || !newForm.description.trim()) return;
+    const store = DEMO_STORES.find((s) => s.id === newForm.storeId);
+    const newItem: PromotionMaterial = {
+      id: `pm${Date.now()}`,
+      type: newForm.type,
+      title: newForm.title.trim(),
+      description: newForm.description.trim(),
+      storeId: newForm.storeId,
+      storeName: store?.name || "",
+      year: newForm.year,
+      month: newForm.month,
+      photos: [],
+      videos: [],
+      documents: [],
+      createdBy: user.id,
+      createdAt: new Date().toISOString(),
+    };
+    setPromotions([newItem, ...promotions]);
+    setShowNewModal(false);
+    setNewForm({ type: "menu_meeting", title: "", description: "", storeId: "s1", year: 2026, month: new Date().getMonth() + 1 });
+  };
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
@@ -71,7 +105,10 @@ export default function PromotionsPage() {
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 tracking-wider">
+          <button
+            onClick={() => setShowNewModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 tracking-wider"
+          >
             <Plus size={14} strokeWidth={1.5} />
             新規追加
           </button>
@@ -95,7 +132,7 @@ export default function PromotionsPage() {
                   >
                     {m}月
                     <span className="text-[#8a8a8a]/40 ml-1">
-                      ({DEMO_PROMOTIONS.filter((p) => p.month === m).length})
+                      ({promotions.filter((p) => p.month === m).length})
                     </span>
                   </div>
                 ))}
@@ -150,6 +187,113 @@ export default function PromotionsPage() {
             </div>
           </div>
         </div>
+
+        {/* 新規追加モーダル */}
+        {showNewModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 lg:p-4" onClick={() => setShowNewModal(false)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-lg w-full max-h-[85vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-sm font-medium text-[#2d2d2d] tracking-wider">販促素材を追加</h3>
+                  <button onClick={() => setShowNewModal(false)} className="text-[#8a8a8a] hover:text-[#2d2d2d] transition-colors duration-300">
+                    <X size={16} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">種類</label>
+                    <select
+                      value={newForm.type}
+                      onChange={(e) => setNewForm({ ...newForm, type: e.target.value as PromotionMaterial["type"] })}
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                    >
+                      {Object.entries(typeLabels).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">タイトル <span className="text-red-500/70">*</span></label>
+                    <input
+                      type="text"
+                      value={newForm.title}
+                      onChange={(e) => setNewForm({ ...newForm, title: e.target.value })}
+                      placeholder="例: 3月季節メニュー写真"
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">説明 <span className="text-red-500/70">*</span></label>
+                    <textarea
+                      value={newForm.description}
+                      onChange={(e) => setNewForm({ ...newForm, description: e.target.value })}
+                      placeholder="素材の説明を入力..."
+                      rows={3}
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">店舗</label>
+                      <select
+                        value={newForm.storeId}
+                        onChange={(e) => setNewForm({ ...newForm, storeId: e.target.value })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      >
+                        {DEMO_STORES.map((s) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">年</label>
+                      <select
+                        value={newForm.year}
+                        onChange={(e) => setNewForm({ ...newForm, year: Number(e.target.value) })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      >
+                        <option value={2026}>2026</option>
+                        <option value={2025}>2025</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">月</label>
+                      <select
+                        value={newForm.month}
+                        onChange={(e) => setNewForm({ ...newForm, month: Number(e.target.value) })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      >
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                          <option key={m} value={m}>{m}月</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={handleNewPromotion}
+                      disabled={!newForm.title.trim() || !newForm.description.trim()}
+                      className="flex-1 py-2.5 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] disabled:opacity-30 transition-colors duration-300 tracking-wider"
+                    >
+                      追加する
+                    </button>
+                    <button
+                      onClick={() => setShowNewModal(false)}
+                      className="px-6 py-2.5 border border-[#e0dbd2] text-[#8a8a8a] rounded-sm text-[11px] hover:border-[#c4a265]/30 transition-colors duration-300 tracking-wider"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 詳細モーダル */}
         {selectedItem && (

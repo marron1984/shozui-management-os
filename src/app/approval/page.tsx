@@ -7,7 +7,8 @@ import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, canApproveRequest } from "@/lib/auth";
 import { DEMO_APPROVAL_REQUESTS } from "@/lib/demo-data";
 import { User, ApprovalRequest } from "@/types";
-import { ClipboardCheck, CheckCircle, XCircle, Clock, Plus, Paperclip, Hash } from "lucide-react";
+import { ClipboardCheck, CheckCircle, XCircle, Clock, Plus, Paperclip, Hash, X } from "lucide-react";
+import { DEMO_STORES } from "@/lib/auth";
 
 // 自動付番: 既存の稟議番号から次の番号を生成
 function generateApprovalNumber(requests: ApprovalRequest[]): string {
@@ -30,6 +31,14 @@ export default function ApprovalPage() {
   const [selectedRequest, setSelectedRequest] = useState<ApprovalRequest | null>(null);
   const [approvalComment, setApprovalComment] = useState("");
   const [showCommentError, setShowCommentError] = useState(false);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [newForm, setNewForm] = useState({
+    title: "",
+    description: "",
+    amount: "",
+    category: "設備",
+    storeId: user?.storeId === "all" ? "s1" : (user?.storeId || "s1"),
+  });
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -83,6 +92,31 @@ export default function ApprovalPage() {
     setShowCommentError(false);
   };
 
+  const handleNewRequest = () => {
+    if (!newForm.title.trim() || !newForm.description.trim() || !newForm.amount) return;
+    const store = DEMO_STORES.find((s) => s.id === newForm.storeId);
+    const newReq: ApprovalRequest = {
+      id: `ap${Date.now()}`,
+      approvalNumber: generateApprovalNumber(requests),
+      title: newForm.title.trim(),
+      description: newForm.description.trim(),
+      amount: Number(newForm.amount),
+      category: newForm.category,
+      requestedBy: user.id,
+      requestedByName: user.name,
+      storeId: newForm.storeId,
+      storeName: store?.name || "",
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      attachments: [],
+    };
+    setRequests([newReq, ...requests]);
+    setShowNewModal(false);
+    setNewForm({ title: "", description: "", amount: "", category: "設備", storeId: user.storeId === "all" ? "s1" : user.storeId });
+  };
+
+  const CATEGORIES = ["設備", "食材・仕入", "人件費", "広告宣伝", "修繕", "消耗品", "その他"];
+
   return (
     <div className="bg-[#fafaf7] min-h-screen">
       <Header title="稟議書" onMobileMenuOpen={openMobileMenu} />
@@ -105,7 +139,10 @@ export default function ApprovalPage() {
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 tracking-wider">
+          <button
+            onClick={() => setShowNewModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 tracking-wider"
+          >
             <Plus size={14} strokeWidth={1.5} />
             新規申請
           </button>
@@ -262,6 +299,99 @@ export default function ApprovalPage() {
             )}
           </div>
         </div>
+        {/* 新規申請モーダル */}
+        {showNewModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 lg:p-4" onClick={() => setShowNewModal(false)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-lg w-full max-h-[85vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-sm font-medium text-[#2d2d2d] tracking-wider">新規稟議申請</h3>
+                  <button onClick={() => setShowNewModal(false)} className="text-[#8a8a8a] hover:text-[#2d2d2d] transition-colors duration-300">
+                    <X size={16} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">件名 <span className="text-red-500/70">*</span></label>
+                    <input
+                      type="text"
+                      value={newForm.title}
+                      onChange={(e) => setNewForm({ ...newForm, title: e.target.value })}
+                      placeholder="例: 厨房設備更新（冷蔵庫交換）"
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">申請内容 <span className="text-red-500/70">*</span></label>
+                    <textarea
+                      value={newForm.description}
+                      onChange={(e) => setNewForm({ ...newForm, description: e.target.value })}
+                      placeholder="申請の詳細内容を記載してください..."
+                      rows={4}
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">金額（円） <span className="text-red-500/70">*</span></label>
+                      <input
+                        type="number"
+                        value={newForm.amount}
+                        onChange={(e) => setNewForm({ ...newForm, amount: e.target.value })}
+                        placeholder="0"
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">カテゴリ</label>
+                      <select
+                        value={newForm.category}
+                        onChange={(e) => setNewForm({ ...newForm, category: e.target.value })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      >
+                        {CATEGORIES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">対象店舗</label>
+                    <select
+                      value={newForm.storeId}
+                      onChange={(e) => setNewForm({ ...newForm, storeId: e.target.value })}
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                    >
+                      {DEMO_STORES.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={handleNewRequest}
+                      disabled={!newForm.title.trim() || !newForm.description.trim() || !newForm.amount}
+                      className="flex-1 py-2.5 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] disabled:opacity-30 transition-colors duration-300 tracking-wider"
+                    >
+                      申請する
+                    </button>
+                    <button
+                      onClick={() => setShowNewModal(false)}
+                      className="px-6 py-2.5 border border-[#e0dbd2] text-[#8a8a8a] rounded-sm text-[11px] hover:border-[#c4a265]/30 transition-colors duration-300 tracking-wider"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
