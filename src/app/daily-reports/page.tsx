@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, DEMO_STORES, DEMO_USERS } from "@/lib/auth";
 import { DEMO_DAILY_REPORTS } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User } from "@/types";
 import {
   FileText,
@@ -20,7 +21,10 @@ import {
   UserCircle,
   Clock,
   ImageIcon,
+  Plus,
+  X,
 } from "lucide-react";
+import { DailyReport } from "@/types";
 
 // userId → 名前を引く
 function getUserName(userId: string): string {
@@ -42,6 +46,14 @@ export default function DailyReportsPage() {
   const [selectedDate, setSelectedDate] = useState("2026-02-22");
   const [expandedReport, setExpandedReport] = useState<string | null>(null);
   const [showFolderTree, setShowFolderTree] = useState(false);
+  const [reports, setReports] = usePersistedState("daily_reports", DEMO_DAILY_REPORTS);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [newForm, setNewForm] = useState({
+    storeId: "",
+    date: new Date().toISOString().split("T")[0],
+    hallReport: "",
+    kitchenReport: "",
+  });
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -55,14 +67,14 @@ export default function DailyReportsPage() {
   if (!user) return null;
 
   // フィルタリング
-  const filteredReports = DEMO_DAILY_REPORTS.filter((r) => {
+  const filteredReports = reports.filter((r) => {
     if (selectedStore !== "all" && r.storeId !== selectedStore) return false;
     if (selectedDate && r.date !== selectedDate) return false;
     return true;
   });
 
   // 当日の提出・未提出の店舗
-  const todayReports = DEMO_DAILY_REPORTS.filter(
+  const todayReports = reports.filter(
     (r) => r.date === selectedDate
   );
   const submittedStoreIds = new Set(todayReports.map((r) => r.storeId));
@@ -81,7 +93,7 @@ export default function DailyReportsPage() {
 
   // フォルダツリー用：全日報の日付を抽出し、年月日でグルーピング
   const dateGroups: Record<string, Record<string, string[]>> = {};
-  DEMO_DAILY_REPORTS.forEach((r) => {
+  reports.forEach((r) => {
     const [year, month, day] = r.date.split("-");
     if (!dateGroups[year]) dateGroups[year] = {};
     if (!dateGroups[year][month]) dateGroups[year][month] = [];
@@ -98,7 +110,29 @@ export default function DailyReportsPage() {
 
   // 日付ごとの日報件数
   const countByDate = (date: string) =>
-    DEMO_DAILY_REPORTS.filter((r) => r.date === date).length;
+    reports.filter((r) => r.date === date).length;
+
+  const handleNewReport = () => {
+    if (!newForm.storeId || !newForm.hallReport.trim() || !newForm.kitchenReport.trim()) return;
+    const store = DEMO_STORES.find((s) => s.id === newForm.storeId);
+    const newReport: DailyReport = {
+      id: `dr${Date.now()}`,
+      storeId: newForm.storeId,
+      storeName: store?.name || "",
+      date: newForm.date,
+      hallReport: newForm.hallReport.trim(),
+      kitchenReport: newForm.kitchenReport.trim(),
+      hallPhotos: [],
+      kitchenPhotos: [],
+      submittedBy: user.id,
+      submittedAt: new Date().toISOString(),
+      folder: `${newForm.date.replace(/-/g, "/")}/${store?.name || ""}`,
+    };
+    setReports([newReport, ...reports]);
+    setSelectedDate(newForm.date);
+    setShowNewModal(false);
+    setNewForm({ storeId: user.storeId === "all" ? "" : user.storeId, date: new Date().toISOString().split("T")[0], hallReport: "", kitchenReport: "" });
+  };
 
   return (
     <div className="bg-[#fafaf7] min-h-screen">
@@ -241,6 +275,7 @@ export default function DailyReportsPage() {
 
         {/* ── フィルター ── */}
         <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 mb-6">
+          <div className="flex flex-wrap items-center gap-4 justify-between">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <Filter
@@ -284,6 +319,17 @@ export default function DailyReportsPage() {
                 className="text-xs border border-[#e0dbd2] rounded-sm px-3 py-1.5 text-[#2d2d2d] bg-[#fafaf7] focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
               />
             </div>
+          </div>
+            <button
+              onClick={() => {
+                setNewForm({ storeId: user.storeId === "all" ? "" : user.storeId, date: selectedDate || new Date().toISOString().split("T")[0], hallReport: "", kitchenReport: "" });
+                setShowNewModal(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 tracking-wider flex-shrink-0"
+            >
+              <Plus size={14} strokeWidth={1.5} />
+              日報作成
+            </button>
           </div>
         </div>
 
@@ -533,6 +579,86 @@ export default function DailyReportsPage() {
             )}
           </div>
         </div>
+        {/* 新規日報モーダル */}
+        {showNewModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 lg:p-4" onClick={() => setShowNewModal(false)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-lg w-full max-h-[85vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-sm font-medium text-[#2d2d2d] tracking-wider">日報を作成</h3>
+                  <button onClick={() => setShowNewModal(false)} className="text-[#8a8a8a] hover:text-[#2d2d2d] transition-colors duration-300">
+                    <X size={16} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">店舗 <span className="text-red-500/70">*</span></label>
+                      <select
+                        value={newForm.storeId}
+                        onChange={(e) => setNewForm({ ...newForm, storeId: e.target.value })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      >
+                        <option value="">選択してください</option>
+                        {DEMO_STORES.map((s) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">日付 <span className="text-red-500/70">*</span></label>
+                      <input
+                        type="date"
+                        value={newForm.date}
+                        onChange={(e) => setNewForm({ ...newForm, date: e.target.value })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#c4a265] tracking-[0.2em]">ホール側日報 <span className="text-red-500/70">*</span></label>
+                    <textarea
+                      value={newForm.hallReport}
+                      onChange={(e) => setNewForm({ ...newForm, hallReport: e.target.value })}
+                      placeholder="ホール側の業務報告を入力してください..."
+                      rows={4}
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#c4a265] tracking-[0.2em]">厨房側日報 <span className="text-red-500/70">*</span></label>
+                    <textarea
+                      value={newForm.kitchenReport}
+                      onChange={(e) => setNewForm({ ...newForm, kitchenReport: e.target.value })}
+                      placeholder="厨房側の業務報告を入力してください..."
+                      rows={4}
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider resize-none"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={handleNewReport}
+                      disabled={!newForm.storeId || !newForm.hallReport.trim() || !newForm.kitchenReport.trim()}
+                      className="flex-1 py-2.5 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] disabled:opacity-30 transition-colors duration-300 tracking-wider"
+                    >
+                      提出する
+                    </button>
+                    <button
+                      onClick={() => setShowNewModal(false)}
+                      className="px-6 py-2.5 border border-[#e0dbd2] text-[#8a8a8a] rounded-sm text-[11px] hover:border-[#c4a265]/30 transition-colors duration-300 tracking-wider"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

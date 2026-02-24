@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, canViewCashFlow, DEMO_STORES } from "@/lib/auth";
 import { DEMO_CASHFLOW } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User, CashFlow, CashFlowDetail } from "@/types";
 import {
   TrendingUp,
@@ -129,10 +130,10 @@ export default function FinancePage() {
   const router = useRouter();
   const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
-  const [cashflow, setCashflow] = useState<CashFlow>(() => ({
+  const [cashflow, setCashflow] = usePersistedState<CashFlow>("cashflow", {
     ...DEMO_CASHFLOW[0],
     details: [...DEMO_CASHFLOW[0].details],
-  }));
+  });
 
   // 入力フォーム
   const [showAddForm, setShowAddForm] = useState(false);

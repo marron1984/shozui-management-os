@@ -7,8 +7,9 @@ import { useMobileMenu } from "@/components/ClientLayout";
 import SyncStatusBadge from "@/components/SyncStatusBadge";
 import { getCurrentUser, DEMO_STORES } from "@/lib/auth";
 import { useReservations } from "@/hooks/useReservations";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User, Reservation } from "@/types";
-import { CalendarCheck, Users, Clock, Store, AlertTriangle, Filter, UtensilsCrossed, Phone, Mail } from "lucide-react";
+import { CalendarCheck, Users, Clock, Store, AlertTriangle, Filter, UtensilsCrossed, Phone, Mail, Plus, X, ChevronDown } from "lucide-react";
 
 export default function ReservationsPage() {
   const router = useRouter();
@@ -17,9 +18,21 @@ export default function ReservationsPage() {
   const [selectedDate, setSelectedDate] = useState("2026-02-22");
   const [selectedStore, setSelectedStore] = useState("all");
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [newForm, setNewForm] = useState({
+    storeId: "s1",
+    date: "2026-02-22",
+    time: "18:00",
+    guestName: "",
+    guestCount: "2",
+    tableNumber: "",
+    courseName: "",
+    specialRequest: "",
+    guestPhone: "",
+  });
 
   const { reservations, syncState, sync } = useReservations();
-  const [localReservations, setLocalReservations] = useState<Reservation[]>([]);
+  const [localReservations, setLocalReservations] = usePersistedState<Reservation[]>("reservations_local", []);
   const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
@@ -61,6 +74,38 @@ export default function ReservationsPage() {
 
   const handleSync = () => {
     sync(selectedDate);
+  };
+
+  const handleAddReservation = () => {
+    if (!newForm.guestName.trim()) return;
+    const store = DEMO_STORES.find((s) => s.id === newForm.storeId);
+    const newRes: Reservation = {
+      id: `res${Date.now()}`,
+      storeId: newForm.storeId,
+      storeName: store?.name || "",
+      date: newForm.date,
+      time: newForm.time,
+      guestName: newForm.guestName.trim(),
+      guestCount: Number(newForm.guestCount) || 2,
+      tableNumber: newForm.tableNumber || undefined,
+      courseName: newForm.courseName || undefined,
+      specialRequest: newForm.specialRequest || undefined,
+      guestPhone: newForm.guestPhone || undefined,
+      status: "confirmed",
+      source: "phone",
+    };
+    setLocalReservations([...localReservations, newRes]);
+    setShowNewModal(false);
+    setNewForm({ storeId: "s1", date: selectedDate, time: "18:00", guestName: "", guestCount: "2", tableNumber: "", courseName: "", specialRequest: "", guestPhone: "" });
+  };
+
+  const handleStatusChange = (id: string, newStatus: Reservation["status"]) => {
+    setLocalReservations(
+      localReservations.map((r) => r.id === id ? { ...r, status: newStatus } : r)
+    );
+    if (selectedReservation?.id === id) {
+      setSelectedReservation({ ...selectedReservation, status: newStatus });
+    }
   };
 
   const handleDateChange = (newDate: string) => {
@@ -117,13 +162,25 @@ export default function ReservationsPage() {
                 ))}
               </select>
             </div>
-            <SyncStatusBadge
-              status={syncState.status}
-              lastSyncAt={syncState.lastSyncAt}
-              source={syncState.source}
-              message={syncState.message}
-              onSync={handleSync}
-            />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setNewForm({ ...newForm, date: selectedDate });
+                  setShowNewModal(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] transition-colors duration-300 tracking-wider"
+              >
+                <Plus size={12} strokeWidth={1.5} />
+                手動予約
+              </button>
+              <SyncStatusBadge
+                status={syncState.status}
+                lastSyncAt={syncState.lastSyncAt}
+                source={syncState.source}
+                message={syncState.message}
+                onSync={handleSync}
+              />
+            </div>
           </div>
         </div>
 
@@ -133,6 +190,7 @@ export default function ReservationsPage() {
             <CalendarCheck size={18} className="mx-auto text-[#c4a265] mb-1" strokeWidth={1.5} />
             <div className="text-2xl font-light text-[#2d2d2d] tracking-wider">{filtered.length}</div>
             <div className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">予約組数</div>
+            <div className="text-[9px] text-[#c4a265]/70 mt-0.5 tracking-wider">{confirmedCount}件 確定</div>
           </div>
           <div className="bg-white border border-[#e0dbd2] rounded-sm p-4 text-center">
             <Users size={18} className="mx-auto text-[#c4a265] mb-1" strokeWidth={1.5} />
@@ -319,6 +377,47 @@ export default function ReservationsPage() {
                     </p>
                   </div>
 
+                  {/* ステータス変更 */}
+                  {selectedReservation.status !== "completed" && selectedReservation.status !== "cancelled" && (
+                    <div className="border-t border-[#eae6df] pt-3">
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em] mb-2 block">ステータス変更</label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedReservation.status === "confirmed" && (
+                          <button
+                            onClick={() => handleStatusChange(selectedReservation.id, "seated")}
+                            className="px-3 py-1.5 bg-[#c4a265]/10 text-[#c4a265] rounded-sm text-[10px] hover:bg-[#c4a265]/20 transition-colors duration-300 tracking-wider"
+                          >
+                            着席
+                          </button>
+                        )}
+                        {(selectedReservation.status === "confirmed" || selectedReservation.status === "seated") && (
+                          <button
+                            onClick={() => handleStatusChange(selectedReservation.id, "completed")}
+                            className="px-3 py-1.5 bg-green-50 text-green-700/70 rounded-sm text-[10px] hover:bg-green-100 transition-colors duration-300 tracking-wider"
+                          >
+                            完了
+                          </button>
+                        )}
+                        {selectedReservation.status === "confirmed" && (
+                          <>
+                            <button
+                              onClick={() => handleStatusChange(selectedReservation.id, "no_show")}
+                              className="px-3 py-1.5 bg-red-50 text-red-500/70 rounded-sm text-[10px] hover:bg-red-100 transition-colors duration-300 tracking-wider"
+                            >
+                              No Show
+                            </button>
+                            <button
+                              onClick={() => handleStatusChange(selectedReservation.id, "cancelled")}
+                              className="px-3 py-1.5 border border-[#e0dbd2] text-[#8a8a8a] rounded-sm text-[10px] hover:border-red-300 hover:text-red-500 transition-colors duration-300 tracking-wider"
+                            >
+                              キャンセル
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {selectedReservation.syncedAt && (
                     <div className="text-[9px] text-[#8a8a8a]/40 tracking-wider border-t border-[#eae6df] pt-3">
                       同期: {new Date(selectedReservation.syncedAt).toLocaleString("ja-JP")}
@@ -334,6 +433,140 @@ export default function ReservationsPage() {
             )}
           </div>
         </div>
+        {/* 手動予約モーダル */}
+        {showNewModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 lg:p-4" onClick={() => setShowNewModal(false)}>
+            <div className="bg-[#fafaf7] rounded-sm max-w-lg w-full max-h-[85vh] overflow-y-auto border border-[#e0dbd2]" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-sm font-medium text-[#2d2d2d] tracking-wider">予約を追加</h3>
+                  <button onClick={() => setShowNewModal(false)} className="text-[#8a8a8a] hover:text-[#2d2d2d] transition-colors duration-300">
+                    <X size={16} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">店舗</label>
+                      <select
+                        value={newForm.storeId}
+                        onChange={(e) => setNewForm({ ...newForm, storeId: e.target.value })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      >
+                        {DEMO_STORES.map((s) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">日付</label>
+                      <input
+                        type="date"
+                        value={newForm.date}
+                        onChange={(e) => setNewForm({ ...newForm, date: e.target.value })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">時間 <span className="text-red-500/70">*</span></label>
+                      <input
+                        type="time"
+                        value={newForm.time}
+                        onChange={(e) => setNewForm({ ...newForm, time: e.target.value })}
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">お名前 <span className="text-red-500/70">*</span></label>
+                      <input
+                        type="text"
+                        value={newForm.guestName}
+                        onChange={(e) => setNewForm({ ...newForm, guestName: e.target.value })}
+                        placeholder="山田 様"
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">人数</label>
+                      <input
+                        type="number"
+                        value={newForm.guestCount}
+                        onChange={(e) => setNewForm({ ...newForm, guestCount: e.target.value })}
+                        min="1"
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">席番号</label>
+                      <input
+                        type="text"
+                        value={newForm.tableNumber}
+                        onChange={(e) => setNewForm({ ...newForm, tableNumber: e.target.value })}
+                        placeholder="例: 個室A"
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">電話番号</label>
+                      <input
+                        type="tel"
+                        value={newForm.guestPhone}
+                        onChange={(e) => setNewForm({ ...newForm, guestPhone: e.target.value })}
+                        placeholder="090-xxxx-xxxx"
+                        className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">コース名</label>
+                    <input
+                      type="text"
+                      value={newForm.courseName}
+                      onChange={(e) => setNewForm({ ...newForm, courseName: e.target.value })}
+                      placeholder="例: 祥瑞おまかせコース"
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#8a8a8a] tracking-[0.15em]">特記事項</label>
+                    <textarea
+                      value={newForm.specialRequest}
+                      onChange={(e) => setNewForm({ ...newForm, specialRequest: e.target.value })}
+                      placeholder="アレルギー、記念日等"
+                      rows={2}
+                      className="w-full mt-1 text-xs border border-[#e0dbd2] rounded-sm px-3 py-2 bg-white focus:outline-none focus:border-[#c4a265]/50 tracking-wider resize-none"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={handleAddReservation}
+                      disabled={!newForm.guestName.trim()}
+                      className="flex-1 py-2.5 bg-[#c4a265] text-white rounded-sm text-[11px] hover:bg-[#b8860b] disabled:opacity-30 transition-colors duration-300 tracking-wider"
+                    >
+                      予約を追加
+                    </button>
+                    <button
+                      onClick={() => setShowNewModal(false)}
+                      className="px-6 py-2.5 border border-[#e0dbd2] text-[#8a8a8a] rounded-sm text-[11px] hover:border-[#c4a265]/30 transition-colors duration-300 tracking-wider"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

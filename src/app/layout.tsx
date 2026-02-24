@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
-import { Noto_Serif_JP } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
-
-const notoSerifJP = Noto_Serif_JP({
-  variable: "--font-noto-serif-jp",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
 
 export const metadata: Metadata = {
   title: "祥瑞マネジメントOS | 株式会社祥瑞",
@@ -21,7 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${notoSerifJP.variable} antialiased`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-serif antialiased" style={{ fontFamily: "'Noto Serif JP', serif" }}>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
