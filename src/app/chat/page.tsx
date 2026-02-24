@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
@@ -16,6 +16,22 @@ export default function ChatPage() {
   const [selectedChannel, setSelectedChannel] = useState<ChatChannel | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState(DEMO_MESSAGES);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  // チャンネル選択時に既読にする
+  const markChannelRead = useCallback((channelId: string, userId: string) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.channelId === channelId && !m.readBy.includes(userId)
+          ? { ...m, readBy: [...m.readBy, userId] }
+          : m
+      )
+    );
+  }, []);
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -25,8 +41,10 @@ export default function ChatPage() {
     const userChannels = DEMO_CHANNELS.filter((ch) => ch.members.includes(u.id));
     if (userChannels.length > 0) {
       setSelectedChannel(userChannels[0]);
+      // 最初のチャンネルのメッセージを既読にする
+      markChannelRead(userChannels[0].id, u.id);
     }
-  }, [router]);
+  }, [router, markChannelRead]);
 
   if (!user) return null;
 
@@ -49,6 +67,7 @@ export default function ChatPage() {
     };
     setMessages([...messages, msg]);
     setNewMessage("");
+    setTimeout(scrollToBottom, 100);
   };
 
   const channelIcon = (type: string) => {
@@ -80,7 +99,10 @@ export default function ChatPage() {
                   return (
                     <button
                       key={ch.id}
-                      onClick={() => setSelectedChannel(ch)}
+                      onClick={() => {
+                        setSelectedChannel(ch);
+                        markChannelRead(ch.id, user.id);
+                      }}
                       className={`w-full p-3 text-left border-b border-[#eae6df]/50 transition-colors duration-300 ${
                         selectedChannel?.id === ch.id ? "bg-[#c4a265]/[0.06]" : "hover:bg-white"
                       }`}
@@ -128,6 +150,11 @@ export default function ChatPage() {
 
                   {/* メッセージ一覧 */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
+                    {channelMessages.length === 0 && (
+                      <div className="flex-1 flex items-center justify-center text-[#8a8a8a] py-12">
+                        <p className="text-xs tracking-wider">まだメッセージがありません</p>
+                      </div>
+                    )}
                     {channelMessages.map((msg) => {
                       const isOwn = msg.senderId === user.id;
                       return (
@@ -162,6 +189,7 @@ export default function ChatPage() {
                         </div>
                       );
                     })}
+                    <div ref={messagesEndRef} />
                   </div>
 
                   {/* 入力エリア */}
