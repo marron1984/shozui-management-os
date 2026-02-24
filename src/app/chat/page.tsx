@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_CHANNELS, DEMO_MESSAGES } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User, ChatChannel, ChatMessage, ROLE_LABELS } from "@/types";
 import { MessageCircle, Send, Hash, Users, User as UserIcon, Paperclip, ChevronLeft } from "lucide-react";
 
@@ -15,7 +16,7 @@ export default function ChatPage() {
   const [user, setUser] = useState<User | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<ChatChannel | null>(null);
   const [newMessage, setNewMessage] = useState("");
-  const [messages, setMessages] = useState(DEMO_MESSAGES);
+  const [messages, setMessages] = usePersistedState("chat_messages", DEMO_MESSAGES);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -195,7 +196,11 @@ export default function ChatPage() {
                   {/* 入力エリア */}
                   <div className="p-3 border-t border-[#e0dbd2] bg-[#fafaf7]">
                     <div className="flex gap-2">
-                      <button className="p-2 text-[#8a8a8a] hover:text-[#c4a265] transition-colors duration-300">
+                      <button
+                        onClick={() => alert("ファイル添付機能は今後のアップデートで追加予定です")}
+                        className="p-2 text-[#8a8a8a] hover:text-[#c4a265] transition-colors duration-300"
+                        title="ファイル添付（準備中）"
+                      >
                         <Paperclip size={16} strokeWidth={1.5} />
                       </button>
                       <input

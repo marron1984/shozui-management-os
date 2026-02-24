@@ -13,6 +13,7 @@ import {
   DEMO_SUGGESTIONS,
   DEMO_NOTIFICATIONS,
 } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import {
   FileText,
   ClipboardCheck,
@@ -28,7 +29,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
-import { User, Reservation, Notification } from "@/types";
+import { User, Reservation, Notification, DailyReport, ApprovalRequest, Suggestion } from "@/types";
 
 // 通知タイプごとのアイコン色
 function getNotifColor(type: Notification["type"]) {
@@ -49,8 +50,9 @@ export default function Dashboard() {
   const [todayReservations, setTodayReservations] = useState<Reservation[]>([]);
   const [reservationsSyncing, setReservationsSyncing] = useState(false);
   const [reservationsSource, setReservationsSource] = useState<"mock" | "live" | null>(null);
-  const [notifications, setNotifications] = useState<Notification[]>(() => [...DEMO_NOTIFICATIONS]);
-  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+  const [notifications, setNotifications] = usePersistedState<Notification[]>("notifications", [...DEMO_NOTIFICATIONS]);
+  const [dismissedIdsArr, setDismissedIdsArr] = usePersistedState<string[]>("dismissed_notifs", []);
+  const dismissedIds = new Set(dismissedIdsArr);
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -83,8 +85,33 @@ export default function Dashboard() {
   const now = new Date();
   const today = now.toISOString().split("T")[0];
   const demoToday = "2026-02-22";
-  const todayReports = DEMO_DAILY_REPORTS.filter((r) => r.date === today || r.date === demoToday);
-  const pendingApprovals = DEMO_APPROVAL_REQUESTS.filter((a) => a.status === "pending");
+
+  // 時間帯に応じた挨拶
+  const hour = now.getHours();
+  const greeting = hour < 11 ? "おはようございます" : hour < 17 ? "お疲れさまです" : "こんばんは";
+
+  // 永続化データを読み込み（他ページで変更された分を反映）
+  const storedReports: DailyReport[] = (() => {
+    try {
+      const s = localStorage.getItem("shozui_daily_reports");
+      return s ? JSON.parse(s) : DEMO_DAILY_REPORTS;
+    } catch { return DEMO_DAILY_REPORTS; }
+  })();
+  const storedApprovals: ApprovalRequest[] = (() => {
+    try {
+      const s = localStorage.getItem("shozui_approval_requests");
+      return s ? JSON.parse(s) : DEMO_APPROVAL_REQUESTS;
+    } catch { return DEMO_APPROVAL_REQUESTS; }
+  })();
+  const storedSuggestions: Suggestion[] = (() => {
+    try {
+      const s = localStorage.getItem("shozui_suggestions");
+      return s ? JSON.parse(s) : DEMO_SUGGESTIONS;
+    } catch { return DEMO_SUGGESTIONS; }
+  })();
+
+  const todayReports = storedReports.filter((r) => r.date === today || r.date === demoToday);
+  const pendingApprovals = storedApprovals.filter((a) => a.status === "pending");
 
   const totalRevenue = DEMO_MONTHLY_REPORTS.filter((r) => r.year === 2026 && r.month === 1).reduce(
     (sum, r) => sum + r.revenue,
@@ -133,7 +160,7 @@ export default function Dashboard() {
         {/* 挨拶 */}
         <div className="mb-8">
           <h2 className="text-lg font-medium text-[#2d2d2d] tracking-wider">
-            おはようございます、{user.name}さん
+            {greeting}、{user.name}さん
           </h2>
           <p className="text-xs text-[#8a8a8a] mt-1.5 tracking-wider">
             {now.toLocaleDateString("ja-JP", {
@@ -231,7 +258,7 @@ export default function Dashboard() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setDismissedIds((prev) => new Set([...prev, n.id]));
+                          setDismissedIdsArr((prev) => [...prev, n.id]);
                         }}
                         className="text-[#e0dbd2] hover:text-red-400 p-1 transition-colors duration-300"
                         title="閉じる"
@@ -319,7 +346,7 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="divide-y divide-[#eae6df]">
-              {DEMO_APPROVAL_REQUESTS.map((req) => (
+              {storedApprovals.slice(0, 5).map((req) => (
                 <div key={req.id} className="p-4">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
@@ -358,7 +385,7 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="divide-y divide-[#eae6df]">
-              {DEMO_SUGGESTIONS.map((s) => (
+              {storedSuggestions.map((s) => (
                 <div key={s.id} className="p-4">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-[#2d2d2d] tracking-wider">{s.title}</span>

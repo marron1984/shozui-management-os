@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, DEMO_STORES, DEMO_USERS } from "@/lib/auth";
 import { DEMO_DAILY_REPORTS } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User } from "@/types";
 import {
   FileText,
@@ -45,7 +46,7 @@ export default function DailyReportsPage() {
   const [selectedDate, setSelectedDate] = useState("2026-02-22");
   const [expandedReport, setExpandedReport] = useState<string | null>(null);
   const [showFolderTree, setShowFolderTree] = useState(false);
-  const [reports, setReports] = useState(DEMO_DAILY_REPORTS);
+  const [reports, setReports] = usePersistedState("daily_reports", DEMO_DAILY_REPORTS);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newForm, setNewForm] = useState({
     storeId: "",

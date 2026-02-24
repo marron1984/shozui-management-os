@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_PROMOTIONS } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User, PromotionMaterial } from "@/types";
 import { Camera, Video, FileText, FolderOpen, Plus, X } from "lucide-react";
 import { DEMO_STORES } from "@/lib/auth";
@@ -31,8 +32,9 @@ export default function PromotionsPage() {
   const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [filterType, setFilterType] = useState("all");
+  const [filterMonth, setFilterMonth] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<PromotionMaterial | null>(null);
-  const [promotions, setPromotions] = useState(DEMO_PROMOTIONS);
+  const [promotions, setPromotions] = usePersistedState("promotions", DEMO_PROMOTIONS);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newForm, setNewForm] = useState({
     type: "menu_meeting" as PromotionMaterial["type"],
@@ -51,9 +53,11 @@ export default function PromotionsPage() {
 
   if (!user) return null;
 
-  const filtered = filterType === "all"
-    ? promotions
-    : promotions.filter((p) => p.type === filterType);
+  const filtered = promotions.filter((p) => {
+    if (filterType !== "all" && p.type !== filterType) return false;
+    if (filterMonth !== null && p.month !== filterMonth) return false;
+    return true;
+  });
 
   const handleNewPromotion = () => {
     if (!newForm.title.trim() || !newForm.description.trim()) return;
@@ -125,16 +129,32 @@ export default function PromotionsPage() {
             <div className="space-y-1 text-xs">
               <div className="text-[#2d2d2d] pl-2 tracking-wider">2026年度</div>
               <div className="pl-6 space-y-0.5">
+                <button
+                  onClick={() => setFilterMonth(null)}
+                  className={`w-full px-2 py-1 rounded-sm text-[11px] text-left transition-colors duration-300 tracking-wider ${
+                    filterMonth === null ? "bg-[#c4a265]/10 text-[#c4a265]" : "text-[#8a8a8a] hover:bg-[#f5f3ee]"
+                  }`}
+                >
+                  すべて
+                  <span className={`ml-1 ${filterMonth === null ? "text-[#c4a265]/60" : "text-[#8a8a8a]/40"}`}>
+                    ({promotions.length})
+                  </span>
+                </button>
+              </div>
+              <div className="pl-6 space-y-0.5">
                 {[3, 2, 1].map((m) => (
-                  <div
+                  <button
                     key={m}
-                    className="px-2 py-1 rounded-sm text-[11px] text-[#8a8a8a] hover:bg-[#f5f3ee] cursor-pointer transition-colors duration-300 tracking-wider"
+                    onClick={() => setFilterMonth(filterMonth === m ? null : m)}
+                    className={`w-full px-2 py-1 rounded-sm text-[11px] text-left transition-colors duration-300 tracking-wider ${
+                      filterMonth === m ? "bg-[#c4a265]/10 text-[#c4a265]" : "text-[#8a8a8a] hover:bg-[#f5f3ee]"
+                    }`}
                   >
                     {m}月
-                    <span className="text-[#8a8a8a]/40 ml-1">
+                    <span className={`ml-1 ${filterMonth === m ? "text-[#c4a265]/60" : "text-[#8a8a8a]/40"}`}>
                       ({promotions.filter((p) => p.month === m).length})
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>

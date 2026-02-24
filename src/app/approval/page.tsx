@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, canApproveRequest } from "@/lib/auth";
 import { DEMO_APPROVAL_REQUESTS } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User, ApprovalRequest } from "@/types";
 import { ClipboardCheck, CheckCircle, XCircle, Clock, Plus, Paperclip, Hash, X } from "lucide-react";
 import { DEMO_STORES } from "@/lib/auth";
@@ -27,7 +28,7 @@ export default function ApprovalPage() {
   const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
-  const [requests, setRequests] = useState(DEMO_APPROVAL_REQUESTS);
+  const [requests, setRequests] = usePersistedState("approval_requests", DEMO_APPROVAL_REQUESTS);
   const [selectedRequest, setSelectedRequest] = useState<ApprovalRequest | null>(null);
   const [approvalComment, setApprovalComment] = useState("");
   const [showCommentError, setShowCommentError] = useState(false);

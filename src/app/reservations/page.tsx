@@ -7,6 +7,7 @@ import { useMobileMenu } from "@/components/ClientLayout";
 import SyncStatusBadge from "@/components/SyncStatusBadge";
 import { getCurrentUser, DEMO_STORES } from "@/lib/auth";
 import { useReservations } from "@/hooks/useReservations";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User, Reservation } from "@/types";
 import { CalendarCheck, Users, Clock, Store, AlertTriangle, Filter, UtensilsCrossed, Phone, Mail, Plus, X, ChevronDown } from "lucide-react";
 
@@ -31,7 +32,7 @@ export default function ReservationsPage() {
   });
 
   const { reservations, syncState, sync } = useReservations();
-  const [localReservations, setLocalReservations] = useState<Reservation[]>([]);
+  const [localReservations, setLocalReservations] = usePersistedState<Reservation[]>("reservations_local", []);
   const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {

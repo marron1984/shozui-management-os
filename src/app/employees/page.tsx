@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, DEMO_USERS, DEMO_STORES, canViewSalary } from "@/lib/auth";
 import { DEMO_SUGGESTIONS } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User, ROLE_LABELS } from "@/types";
 import { Users, UserCircle, MessageSquare, Send, Eye, EyeOff, MapPin, Plus, X } from "lucide-react";
 import { Suggestion } from "@/types";
@@ -17,7 +18,7 @@ export default function EmployeesPage() {
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<"roster" | "suggestions">("roster");
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
-  const [suggestions, setSuggestions] = useState(DEMO_SUGGESTIONS);
+  const [suggestions, setSuggestions] = usePersistedState("suggestions", DEMO_SUGGESTIONS);
   const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
   const [showNewSuggestion, setShowNewSuggestion] = useState(false);
   const [newSuggestion, setNewSuggestion] = useState({ title: "", content: "" });

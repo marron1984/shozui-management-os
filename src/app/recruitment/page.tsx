@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { useMobileMenu } from "@/components/ClientLayout";
 import { getCurrentUser, canViewRecruitment } from "@/lib/auth";
 import { DEMO_APPLICATIONS } from "@/lib/demo-data";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { User, JobApplication } from "@/types";
 import { UserPlus, FileText, CheckCircle, XCircle, Lock, User as UserIcon, ArrowRight } from "lucide-react";
 
@@ -13,7 +14,7 @@ export default function RecruitmentPage() {
   const router = useRouter();
   const { openMobileMenu } = useMobileMenu();
   const [user, setUser] = useState<User | null>(null);
-  const [applications, setApplications] = useState(DEMO_APPLICATIONS);
+  const [applications, setApplications] = usePersistedState("applications", DEMO_APPLICATIONS);
   const [selected, setSelected] = useState<JobApplication | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "interviewing" | "accepted" | "rejected">("all");
 
